@@ -18,7 +18,7 @@
  *   올리지 않으면 새 그림이 폰에 영영 안 들어갑니다.
  *************************************************************/
 
-const CACHE_NAME = "uo-attendance-v4";
+const CACHE_NAME = "uo-attendance-v5";
 
 const CORE_ASSETS = [
   "./",
