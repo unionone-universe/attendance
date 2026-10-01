@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
   <title>UNION ONE 출퇴근</title>
 
-  <meta name="theme-color" content="#16130F">
+  <meta name="theme-color" content="#EEF1EC">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="출퇴근">
@@ -16,449 +16,391 @@
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 
+  <!-- 고른 화면 밝기를 그리기 전에 먼저 건다 — 어둡게를 골랐는데 밝은 화면이 번쩍이지 않게 -->
+  <script>try{var t=localStorage.getItem('uo_att_theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+
   <style>
-    /* ★ 색은 아래 이름으로만 씁니다. 규칙 안에 색을 직접 적지 말고, 새 색이 필요하면 여기에 이름을 더하세요.
-       강조색은 UNION ONE 워크보드 어두운 화면과 같은 방식입니다 — 밝은 버튼에 어두운 글자. */
+    /* ★★ 출퇴근 2.0 (2026-10-01) — 세 앱과 같은 남색 잉크 · 주황 신호색, 밝게 · 어둡게 두 벌.
+       색은 아래 이름으로만 씁니다. 규칙 안에 색을 직접 적으면 한쪽 화면에서만 글자가 안 보입니다.
+       새 색이 필요하면 밝은 벌 · 어두운 벌 두 곳에 같이 더하세요.
+       화면 밝기는 자동(폰 설정) · 밝게 · 어둡게 — html 의 data-theme 이 정합니다 (localStorage uo_att_theme). */
     :root{
-      /* 어두운 화면 — 기본값. color-scheme 을 알려야 select 를 펼친 목록·사진 고르기 창·
-         스크롤바가 흰색으로 뜨지 않습니다. */
+      color-scheme: light;
+      --font:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+      --bg:#EEF1EC; --surface:#FFFFFF; --surface-2:#F5F7F3; --sunk:#E6EAE4;
+      --line:#DCE1DA; --line-2:#C3CAC1; --field-line:#7D8890;
+      --ink:#131A21; --ink-2:#2F3943; --ink-3:#56606B;
+      --go:#1B2A3A; --on-go:#FFFFFF;
+      --stop:#B24E16; --on-stop:#FFFFFF;
+      --work:#1E6446; --on-work:#FFFFFF; --work-soft:#E2EFE6; --work-line:#B9D7C3;
+      --leave:#1D4E89; --leave-soft:#E6EEF8; --leave-line:#BCD0EA;
+      --wait:#6E4A00; --wait-soft:#FFF3D6; --wait-line:#E6C77A; --wait-dot:#D99A12;
+      --bad:#A3341F; --bad-soft:#FBEBE7; --bad-line:#E4A898;
+      --accent:#D2601F; --accent-2:#EC9A63; --accent-deep:#A4470F;
+      --holiday:#B81414;
+      --focus:#2F6FDE;
+      --skel:#E1E6DF;
+      --shadow:0 1px 2px rgba(19,26,33,.05),0 8px 24px rgba(19,26,33,.05);
+      --sheet-shadow:0 -10px 40px rgba(19,26,33,.18);
+      --scrim:rgba(14,19,24,.45);
+      --toast-bg:#1B2A3A; --toast-ink:#FFFFFF;
+      --status-strip:#1B2A3A;     /* 아이폰 상태줄(흰 글자) 뒤 — 밝은 화면에서도 시계가 보이게 */
+    }
+    @media (prefers-color-scheme: dark){
+      :root:not([data-theme="light"]){
+        color-scheme: dark;
+        --bg:#0E1318; --surface:#161D24; --surface-2:#1C242C; --sunk:#10161B;
+        --line:#26303A; --line-2:#3A4651; --field-line:#66737F;
+        --ink:#EEF2F5; --ink-2:#CDD5DC; --ink-3:#A2ACB6;
+        --go:#EAF0F5; --on-go:#0E1318;
+        --stop:#F0904F; --on-stop:#1B0D03;
+        --work:#7FD3A6; --on-work:#0B1A12; --work-soft:rgba(127,211,166,.13); --work-line:rgba(127,211,166,.38);
+        --leave:#9CC2F2; --leave-soft:rgba(156,194,242,.13); --leave-line:rgba(156,194,242,.38);
+        --wait:#F2C462; --wait-soft:rgba(242,196,98,.11); --wait-line:rgba(242,196,98,.38); --wait-dot:#F2C462;
+        --bad:#FF9E8C; --bad-soft:rgba(255,120,100,.12); --bad-line:rgba(255,120,100,.42);
+        --accent:#F0904F; --accent-2:#F6B583; --accent-deep:#C9692C;
+        --holiday:#FF8C8C;
+        --focus:#7FB2FF;
+        --skel:#222B33;
+        --shadow:none;
+        --sheet-shadow:0 -10px 40px rgba(0,0,0,.5);
+        --scrim:rgba(0,0,0,.6);
+        --toast-bg:#EEF2F5; --toast-ink:#0E1318;
+        --status-strip:#0E1318;
+      }
+    }
+    :root[data-theme="dark"]{
       color-scheme: dark;
-      --bg:#16130F;
-      --panel:#201C18;
-      --field:#1B1814;
-      --field2:#221E1A;
-      --line:#37322C;
-      --line2:#433D36;
-      --text:#F4F2EE;
-      --text2:#EBE7E1;
-      --text-soft:#CFC9C1;
-      --step-text:#DDD8D1;
-      --muted:#B9B3AB;
-      --dim:#9E978F;
-      --faint:#6E675F;
-      --accent:#F4F2EE;
-      --on-accent:#16130F;
-      --btn2:#2E2924;
-      --btn2-text:#F4F2EE;
-      --chip:#2A2621;
-      --work-bg:rgba(244,242,238,.10);
-      --work-text:#F4F2EE;
-      --work-line:rgba(244,242,238,.38);
-      --done-bg:rgba(55,194,107,.14);
-      --done-text:#7ee0a3;
-      --done-line:rgba(55,194,107,.35);
-      --green:#37c26b;
-      --red:#ff5a5a;
-      --bad-line:#7d2b2b;
-      --bad-bg:rgba(200,50,50,.14);
-      --bad-text:#ffb4b4;
-      --holiday:#ff8c8c;
-      --sunk-bg:#110E0B;
-      --sunk-line:#2C2722;
-      --sunk-text:#A39C94;
-      --sunk-text-strong:#CEC8C0;
-      --sunk-shadow:rgba(0,0,0,.55);
-      --focus:rgba(244,242,238,.55);
-      --notice-bg:rgba(244,242,238,.06);
-      --notice-line:rgba(244,242,238,.24);
-      --notice-text:#E8E3DC;
-      --toast-bg:#2A2621;
-      --toast-line:#3E3832;
-      --toast-text:#F4F2EE;
-      --shadow-strong:rgba(0,0,0,.5);
-      --toast-good:rgba(55,194,107,.5);
-      --toast-bad:rgba(255,90,90,.55);
-      --cover:rgba(12,10,8,.82);
-      --spin-track:#3A342E;
-      --icon-shadow:rgba(0,0,0,.45);
-      --box-bg:#1C1915;
-      --box-line:#2F2A25;
-      --row-line:#2A2621;
+      --bg:#0E1318; --surface:#161D24; --surface-2:#1C242C; --sunk:#10161B;
+      --line:#26303A; --line-2:#3A4651; --field-line:#66737F;
+      --ink:#EEF2F5; --ink-2:#CDD5DC; --ink-3:#A2ACB6;
+      --go:#EAF0F5; --on-go:#0E1318;
+      --stop:#F0904F; --on-stop:#1B0D03;
+      --work:#7FD3A6; --on-work:#0B1A12; --work-soft:rgba(127,211,166,.13); --work-line:rgba(127,211,166,.38);
+      --leave:#9CC2F2; --leave-soft:rgba(156,194,242,.13); --leave-line:rgba(156,194,242,.38);
+      --wait:#F2C462; --wait-soft:rgba(242,196,98,.11); --wait-line:rgba(242,196,98,.38); --wait-dot:#F2C462;
+      --bad:#FF9E8C; --bad-soft:rgba(255,120,100,.12); --bad-line:rgba(255,120,100,.42);
+      --accent:#F0904F; --accent-2:#F6B583; --accent-deep:#C9692C;
+      --holiday:#FF8C8C;
+      --focus:#7FB2FF;
+      --skel:#222B33;
+      --shadow:none;
+      --sheet-shadow:0 -10px 40px rgba(0,0,0,.5);
+      --scrim:rgba(0,0,0,.6);
+      --toast-bg:#EEF2F5; --toast-ink:#0E1318;
+      --status-strip:#0E1318;
     }
 
     /* ★ hidden 속성은 언제나 숨깁니다 (2026-09-23).
-       .undo · .photobad · .step 처럼 display 를 적은 규칙이 브라우저 기본 [hidden] 을 덮어서
+       .undo · .photobad · .steps 처럼 display 를 적은 규칙이 브라우저 기본 [hidden] 을 덮어서
        '출근 취소'(5분 안에만 떠야 함) · 빈 '못 올린 사진' 상자 · 다른 폰 설치 안내가 **늘 보였습니다.**
-       스크립트는 .hidden 으로 숨기고 있었으므로 이 한 줄로 셋 다 원래 뜻대로 돌아갑니다. */
+       지우지 마세요 — 출퇴근시험 ⑩ · ⑭ 가 계산된 display 로 지킵니다. */
     [hidden]{display:none !important}
 
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
-    html,body{
-      margin:0;
-      min-height:100%;
-      background:var(--bg);
-      color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR","Segoe UI",sans-serif;
-    }
-
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-text-size-adjust:100%}
     body{
       min-height:100vh;
-      display:flex;
-      justify-content:center;
-      padding:
-        calc(20px + env(safe-area-inset-top))
-        18px
-        calc(24px + env(safe-area-inset-bottom));
+      display:flex;justify-content:center;
+      padding:calc(10px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
+      font-size:16px;line-height:1.5;
+      word-break:keep-all;overflow-wrap:anywhere;     /* 긴 현장명(띄어쓰기 없는 '김철수_20260901')도 칸 안에서 꺾인다 */
     }
+    body::before{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top);background:var(--status-strip);z-index:70}
+    body.sheet-open{overflow:hidden}
 
-    .wrap{width:min(100%,430px)}
+    /* 폰은 한 줄 — 손에 든 폭 그대로. 태블릿 · PC 는 넓게 쓰되 폰 화면을 늘이지는 않는다 */
+    .wrap{width:min(100%,480px)}
+    @media (min-width:760px){ .wrap{width:min(100%,980px)} }
 
     .view{display:none}
     .view.on{display:block}
 
-    .brand{
-      display:block;
-      width:min(240px,60vw);
-      height:auto;
-      margin:6px auto 20px;
-    }
-
-    .icon{
-      display:block;
-      width:112px;height:112px;
-      margin:6px auto 0;
-      border-radius:26px;
-      box-shadow:0 18px 48px var(--icon-shadow);
-    }
-
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+    .ic{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+    /* ── 머리줄 — 작은 이름 · 날짜 (앱 이름 · 큰 로고로 버튼을 밀지 않는다) ── */
+    .topbar{display:flex;align-items:center;gap:12px;min-height:58px;margin:0 0 12px}
+    .tb-icon{width:40px;height:40px;border-radius:11px;flex:none}
+    .tb-who{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+    .tb-name{font-size:17px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tb-date{font-size:15px;font-weight:600;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .tb-name:empty::before,.tb-date:empty::before{content:"";display:block;width:86px;height:15px;margin:3px 0;border-radius:6px;background:var(--skel)}
+    .tb-date:empty::before{width:120px}
+    .tb-title{flex:1;margin:0;font-size:20px;font-weight:850;letter-spacing:-.02em;text-align:center}
+    .icon-btn{width:46px;height:46px;flex:none;display:grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:14px;
+      background:var(--surface);color:var(--ink-2);cursor:pointer}
+    .icon-btn:active{transform:scale(.96)}
+    .back{display:inline-flex;align-items:center;gap:2px;min-height:46px;padding:0 14px 0 8px;border:1px solid var(--line);border-radius:14px;
+      background:var(--surface);color:var(--ink);font:inherit;font-size:16px;font-weight:800;cursor:pointer;flex:none}
+    .tb-space{width:84px;flex:none}
 
     /* ── 보내는 중 · 못 보낸 것 ────────────────────────────
        출퇴근을 누르면 화면은 그 자리에서 바뀌고, 전송은 뒤에서 돕니다.
-       그 사이에 무슨 일이 벌어지는지 여기 한 줄로만 알립니다.
-       ★ 잘 되고 있을 때는 무채색입니다. 빨강은 '지금 손대야 함' 일 때만. */
-    .pending{
-      display:none;
-      align-items:center;
-      gap:10px;
-      margin:0 0 12px;
-      padding:11px 14px;
-      border:1px solid var(--line);
-      border-radius:12px;
-      background:var(--panel);
-      font-size:15px;
-      line-height:1.4;
-      color:var(--muted);
-    }
-    .pending.on{display:flex;min-height:46px}
-
-    .pending .dot{
-      flex:0 0 auto;
-      width:9px;height:9px;border-radius:50%;
-      background:var(--muted);
-    }
+       ★ 잘 되고 있을 때는 노랑(기다림), 빨강은 '지금 손대야 함' 일 때만.
+       ★ 아무것도 없을 때 className 은 정확히 'pending' 입니다 (출퇴근시험 ① 이 봅니다). */
+    .pending{display:none;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px 10px 14px;
+      border:1px solid var(--wait-line);border-radius:14px;background:var(--wait-soft);color:var(--wait);
+      font-size:15px;font-weight:700;line-height:1.4}
+    .pending.on{display:flex;min-height:48px}
+    .pending .dot{flex:0 0 auto;width:10px;height:10px;border-radius:50%;background:var(--wait-dot)}
     .pending .txt{flex:1 1 auto;min-width:0}
-    .pending button{
-      flex:0 0 auto;
-      background:none;border:0;padding:6px 2px;
-      color:var(--muted);font-size:15px;font-weight:700;
-      text-decoration:underline;cursor:pointer;
-    }
-
-    /* 아직 보내는 중 — 점이 조용히 숨쉰다 */
+    .pending button{flex:0 0 auto;min-height:45px;padding:0 14px;border:1px solid currentColor;border-radius:12px;background:transparent;
+      color:inherit;font:inherit;font-size:15px;font-weight:800;cursor:pointer}
     .pending.wait .dot{animation:breathe 1.6s ease-in-out infinite}
     @keyframes breathe{0%,100%{opacity:.35}50%{opacity:1}}
+    .pending.bad{border-color:var(--bad-line);background:var(--bad-soft);color:var(--bad)}
+    .pending.bad .dot{background:var(--bad);animation:none}
 
-    /* 못 보냈다 — 지금 손대야 하는 상태 */
-    .pending.bad{border-color:var(--red);color:var(--red)}
-    .pending.bad .dot{background:var(--red);animation:none}
-    .pending.bad button{color:var(--red)}
+    .update{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:8px 8px 8px 14px;border:1px solid var(--leave-line);border-radius:14px;
+      background:var(--leave-soft);color:var(--leave);font-size:15px;font-weight:700}
+    .update span{flex:1;min-width:0}
+    .update button{min-height:45px;padding:0 14px;border:0;border-radius:12px;background:var(--go);color:var(--on-go);font:inherit;font-size:15px;font-weight:800;cursor:pointer}
 
-    @media (prefers-reduced-motion: reduce){
-      .pending.wait .dot{animation:none}
+    /* ── 카드 ── */
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow)}
+    .col{display:grid;gap:12px;align-content:start}
+    .today-grid{display:grid;gap:12px}
+    @media (min-width:760px){
+      .today-grid{grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:16px;align-items:start}
+      .card{padding:22px}
     }
+    .label{font-size:15px;font-weight:800;color:var(--ink-3)}
+    .card-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 12px}
+    .card-title{margin:0;font-size:18px;font-weight:850;letter-spacing:-.01em}
 
-    /* 사진을 뒤에서 올리는 중임을 알리는 작은 줄 */
-    .note{
-      margin:10px 0 0;
-      font-size:14px;
-      color:var(--dim);
-      min-height:0;
-    }
-    .note:empty{display:none}
+    /* ① 현장 — 이름이 길어도 줄여 자르지 않는다 */
+    .label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px}
+    .lock{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:700;color:var(--ink-3)}
+    .lock .ic{width:18px;height:18px}
+    .site-name{margin:6px 0 0;font-size:23px;font-weight:850;line-height:1.3;letter-spacing:-.02em;color:var(--ink)}
+    .site-name .sn-sub{display:block;margin-top:3px;font-size:15px;font-weight:600;letter-spacing:0;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .site-name:empty::before{content:"";display:block;width:62%;height:24px;border-radius:8px;background:var(--skel)}
+    .site-btn{margin-top:14px}
 
-    .ver{
-      margin-top:14px;
-      text-align:center;
-      font-size:12px;
-      color:var(--faint);
-      letter-spacing:.02em;
-    }
+    /* ② 지금 상태 · 시각 · 누를 것 하나 */
+    .state-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .badge{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:5px 14px;border-radius:999px;
+      border:1px solid var(--line);background:var(--sunk);color:var(--ink-2);font-size:16px;font-weight:800;letter-spacing:-.01em}
+    .badge::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor;flex:none}
+    [data-st="work"] .badge{background:var(--work-soft);color:var(--work);border-color:var(--work-line)}
+    [data-st="done"] .badge{background:var(--work-soft);color:var(--work);border-color:var(--work-line)}
+    [data-st="leave"] .badge{background:var(--leave-soft);color:var(--leave);border-color:var(--leave-line)}
+    [data-st="fail"] .badge{background:var(--bad-soft);color:var(--bad);border-color:var(--bad-line)}
+    [data-st="load"] .badge::before{animation:breathe 1.6s ease-in-out infinite}
+    [data-st="fail"] .site-card{display:none}
 
-    .card{
-      padding:18px;
-      border:1px solid var(--line);
-      border-radius:20px;
-      background:var(--panel);
-    }
-    .card + .card{margin-top:14px}
+    .times{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:14px 0 0}
+    .tm{min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface-2)}
+    .tm-label{display:block;font-size:15px;font-weight:700;color:var(--ink-3)}
+    .tm-val{display:block;font-size:30px;font-weight:850;line-height:1.15;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--ink)}
+    .tm-sync{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-size:15px;font-weight:800}
+    .tm-sync:empty{display:none}
+    .tm-sync[data-s="ok"]{color:var(--work)}
+    .tm-sync[data-s="ok"]::before{content:"";width:14px;height:8px;margin:-4px 1px 0;border:solid currentColor;border-width:0 0 2.5px 2.5px;transform:rotate(-45deg)}
+    .tm-sync[data-s="wait"]{color:var(--wait)}
+    .tm-sync[data-s="wait"]::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--wait-dot);animation:breathe 1.6s ease-in-out infinite}
+    .tm-sync[data-s="bad"]{color:var(--bad)}
+    .tm-sync[data-s="bad"]::before{content:"!";display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:var(--bad);color:var(--surface);font-size:13px;font-weight:900}
+    .state-msg{margin:12px 0 0;font-size:16px;line-height:1.55;color:var(--ink-2)}
+    .state-msg:empty{display:none}
 
-    /* 이 앱의 기준은 큰 버튼 · 큰 글자입니다 (v51).
-       라벨도 15px 아래로 내리지 않습니다 — 현장에서 햇빛 아래
-       장갑 낀 손으로 보는 화면이라 13px 는 실제로 잘 안 보였습니다. */
-    .eyebrow{
-      margin:0 0 6px;
-      color:var(--dim);
-      font-size:15px;
-      letter-spacing:.4px;
-    }
-
-    .today{
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .today b{font-size:19px;letter-spacing:-.5px}
-
-    .badge{
-      display:inline-block;
-      margin-top:14px;
-      padding:9px 16px;
-      border-radius:999px;
-      font-size:15px;
-      font-weight:800;
-      letter-spacing:-.3px;
-    }
-    .badge.none{background:var(--chip);color:var(--muted)}
-    .badge.work{background:var(--work-bg);color:var(--work-text);border:1px solid var(--work-line)}
-    .badge.done{background:var(--done-bg);color:var(--done-text);border:1px solid var(--done-line)}
-
-    /* 상태 한 줄 — 뱃지 + `사무실 · 출근 08:12 → 18:03` (2026-09-09) */
-    .stateline{
-      display:flex;align-items:center;flex-wrap:wrap;gap:10px 12px;
-      margin:14px 0 0;font-size:16px;line-height:1.4;color:var(--text);
-      font-variant-numeric:tabular-nums;
-    }
-    .stateline .badge{margin-top:0}
-    .stateline #stateText:empty{display:none}
-    #siteRow.gone{display:none}
-    .btn.gone{display:none}
-    /* 아래 한 줄 두 버튼 — 사진 · 이번 달 */
-    .card.slim{padding:12px 14px}
-    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .row2 .btn{margin-top:0;min-height:55px;white-space:normal;line-height:1.3;padding:12px 10px}
-    .row2 .btn + .btn{margin-top:0}
-    .foot.top{margin:0 0 12px}
-    details.more{margin-top:12px;color:var(--muted);font-size:15px}
-    details.more summary{cursor:pointer;padding:8px 0;min-height:44px;display:flex;align-items:center;
-      text-decoration:underline;text-underline-offset:3px}
-    details.more p{margin:6px 0 0;line-height:1.6}
-
-    .btn{
-      display:block;
-      width:100%;
-      margin-top:12px;
-      padding:20px 16px;
-      border:0;
-      border-radius:18px;
-      font-family:inherit;
-      font-size:19px;
-      font-weight:900;
-      letter-spacing:-.5px;
-      color:var(--on-accent);
-      background:var(--accent);
-      cursor:pointer;
-      transition:transform .08s ease,opacity .15s ease;
-    }
-    /* 버튼이 이어질 때는 사이를 넓힌다 — 출근 바로 아래가 퇴근이다 */
-    .btn + .btn{margin-top:18px}
+    .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;padding:12px 16px;border:0;border-radius:16px;
+      font-family:inherit;font-size:17px;font-weight:800;letter-spacing:-.01em;cursor:pointer;
+      background:var(--go);color:var(--on-go);transition:transform .08s ease,opacity .15s ease}
     .btn:active{transform:scale(.985)}
-    .btn.ghost{
-      background:transparent;
-      border:1px solid var(--line);
-      color:var(--text);
-      font-size:16px;
-      padding:16px;
-    }
-    .btn.out{background:var(--btn2);color:var(--btn2-text)}
-    /* 되돌리기 — 주 버튼처럼 보이면 안 됩니다. 글자 줄 하나입니다.
-       ★ 그래도 손가락으로 눌러야 하므로 높이는 45px 를 지킵니다. */
-    /* 못 올린 사진 — 빨강(지금 손대야 함). 눌러서 다시 보냅니다 */
-    .photobad{
-      display:block;width:100%;margin-top:10px;min-height:45px;
-      border:1px solid var(--bad-line);border-radius:12px;
-      background:var(--bad-bg);color:var(--bad-text);
-      font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
-    }
-    .photobad:active{opacity:.7}
-
-    .undo{
-      display:block;width:100%;margin-top:10px;min-height:45px;
-      border:0;background:transparent;color:var(--muted);
-      font-family:inherit;font-size:15px;font-weight:700;
-      text-decoration:underline;text-underline-offset:3px;cursor:pointer;
-    }
-    .undo:active{opacity:.6}
-    /* 이미 찍은 버튼이 '아직 누를 수 있는 것' 처럼 보이면 사람이 또 누릅니다.
-       그래서 누를 수 있는 버튼(볼록)과 정반대로 만들었습니다 —
-       카드보다 어둡게 파이게 하고, 안쪽 그림자로 눌린 자리처럼 보이게.
-       대신 찍힌 시각은 읽어야 하는 정보이므로 글자는 오히려 밝게 올렸습니다.
-       (대비 3.0:1 → 6.6:1) */
-    .btn:disabled,
-    .btn.out:disabled,
-    .btn.ghost:disabled{
-      background:var(--sunk-bg);
-      border:1px solid var(--sunk-line);
-      color:var(--sunk-text);
-      opacity:1;
-      cursor:default;
-      box-shadow:inset 0 1px 3px var(--sunk-shadow);
-    }
-    /* 눌러도 움찔하지 않는다 — 반응하면 '눌린 것' 으로 오해한다 */
+    .btn.main{margin-top:16px;min-height:76px;border-radius:20px;font-size:23px;font-weight:900;letter-spacing:-.02em}
+    .btn.main.out{background:var(--stop);color:var(--on-stop)}
+    .btn.line{background:var(--surface-2);color:var(--ink);border:1px solid var(--line-2)}
+    .btn.gone{display:none}
+    /* 이미 찍은 · 아직 못 누르는 버튼은 '파인 자리' — 볼록한 버튼과 정반대로. 글자는 읽혀야 하니 대비는 지킨다 */
+    .btn:disabled,.btn.line:disabled{background:var(--sunk);color:var(--ink-3);border:1px solid var(--line);cursor:default}
     .btn:disabled:active{transform:none}
 
-    label{display:block;margin:14px 0 7px;font-size:15px;color:var(--muted)}
-    input{
-      width:100%;
-      padding:16px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:var(--field);
-      color:var(--text);
-      font-family:inherit;
-      font-size:18px;
-    }
-    input:focus{outline:2px solid var(--focus);outline-offset:1px}
+    /* 되돌리기 — 주 버튼처럼 보이면 안 됩니다. 글자 줄 하나. ★ 그래도 손가락으로 누르니 높이는 46px */
+    .undo{display:block;width:100%;margin-top:8px;min-height:46px;border:0;background:transparent;color:var(--ink-3);
+      font-family:inherit;font-size:16px;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+    .undo:active{opacity:.6}
 
-    select{
-      width:100%;
-      /* 오른쪽 40px 는 화살표 자리입니다 (v51).
-         16px 만 두었더니 현장명이 길 때 글자가 화살표 위를 덮어서
-         고를 수 있는 칸으로 안 보였습니다. */
-      padding:15px 40px 15px 16px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:var(--field);
-      color:var(--text);
-      font-family:inherit;
-      font-size:17px;
-      appearance:none;
-      background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),
-                       linear-gradient(135deg,var(--muted) 50%,transparent 50%);
-      background-position:calc(100% - 22px) 22px, calc(100% - 16px) 22px;
-      background-size:6px 6px,6px 6px;
-      background-repeat:no-repeat;
-    }
-    select:focus{outline:2px solid var(--focus);outline-offset:1px}
-    /* 출근을 찍으면 현장이 잠깁니다.
-       통째로 흐리게 하면 '지금 어느 현장에서 일하는 중인지' 라는
-       중요한 정보까지 같이 흐려집니다 (화살표는 3.4:1 까지 떨어졌습니다).
-       그래서 글자는 오히려 또렷하게 두고, '고를 수 없다' 는 것은
-       파인 배경과 화살표를 없애는 것으로 보여줍니다.
-       비활성 버튼과 같은 모양이라 한 번 익히면 어디서든 통합니다. */
-    select:disabled{
-      opacity:1;
-      background-image:none;
-      background-color:var(--sunk-bg);
-      border-color:var(--sunk-line);
-      color:var(--sunk-text-strong);
-      box-shadow:inset 0 1px 3px var(--sunk-shadow);
-    }
+    .done{display:flex;align-items:center;gap:14px;margin:14px 0 0;padding:14px 16px;border-radius:18px;background:var(--work-soft);color:var(--ink)}
+    .done b{display:block;font-size:18px;font-weight:850}
+    .done span{display:block;font-size:15px;color:var(--ink-2)}
+    .art{width:84px;height:66px;flex:none}
+    .art .a-shadow{fill:var(--line)}
+    .art .a-hat{fill:var(--accent)}
+    .art .a-top{fill:var(--accent-2)}
+    .art .a-brim{fill:var(--accent-deep)}
+    .art .a-ok{fill:var(--work)}
+    .art .a-mark{fill:none;stroke:var(--on-work);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+    .art .a-spark{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round}
+    .art .e-card{fill:var(--surface);stroke:var(--line-2);stroke-width:2}
+    .art .e-top{fill:var(--sunk)}
+    .art .e-ring{fill:none;stroke:var(--ink-3);stroke-width:2.4;stroke-linecap:round}
+    .art .e-dot{fill:var(--line-2)}
+    .art .e-dot.on{fill:var(--accent)}
 
-    .step{display:flex;gap:10px;margin:11px 0;color:var(--step-text);font-size:15px;line-height:1.55}
-    .num{
-      flex:none;width:23px;height:23px;
-      display:grid;place-items:center;
-      border-radius:50%;
-      background:var(--accent);
-      /* 강조색 동그라미에는 그 위에 얹는 글자색 (먹색 숫자) */
-      color:var(--on-accent);font-size:13px;font-weight:900;
-    }
+    .hint{display:flex;align-items:flex-start;gap:8px;margin:12px 0 0;font-size:15px;line-height:1.5;color:var(--ink-3)}
+    .hint .ic{width:18px;height:18px;margin-top:2px}
 
-    .notice{
-      margin-top:16px;padding:13px 15px;
-      border-radius:14px;
-      background:var(--notice-bg);
-      border:1px solid var(--notice-line);
-      color:var(--notice-text);font-size:15px;line-height:1.6;
-    }
+    /* ③ 사진 — 올리기(행동)와 오늘 올라간 수(서버가 센 것)를 나눈다 */
+    .count{font-size:15px;font-weight:700;color:var(--ink-3);white-space:nowrap}
+    .count b{font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
+    .pb-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+    .pb-item{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;padding:8px 12px 8px 8px;
+      border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
+    .pb-thumb{display:block;width:44px;height:44px;border-radius:10px;object-fit:cover;background:var(--sunk)}
+    .pb-name{font-size:15px;font-weight:700;color:var(--ink-2)}
+    .pb-st{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:800;color:var(--ink-3);white-space:nowrap}
+    .pb-item[data-st="up"] .pb-st{color:var(--wait)}
+    .pb-item[data-st="up"] .pb-st::before{content:"";width:14px;height:14px;border-radius:50%;border:2.5px solid var(--wait-line);border-top-color:var(--wait-dot);animation:spin .8s linear infinite}
+    .pb-item[data-st="ok"] .pb-st{color:var(--work)}
+    .pb-item[data-st="kept"]{border-color:var(--wait-line);background:var(--wait-soft)}
+    .pb-item[data-st="kept"] .pb-st{color:var(--wait)}
+    .pb-item[data-st="fail"]{border-color:var(--bad-line);background:var(--bad-soft)}
+    .pb-item[data-st="fail"] .pb-st{color:var(--bad)}
+    .note{margin:10px 0 0;font-size:15px;line-height:1.5;color:var(--ink-2)}
+    .note:empty{display:none}
+    /* 못 올린 사진 — 빨강(지금 손대야 함). 눌러서 다시 보냅니다 */
+    .photobad{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;min-height:52px;padding:10px 14px;
+      border:1px solid var(--bad-line);border-radius:14px;background:var(--bad-soft);color:var(--bad);
+      font-family:inherit;font-size:16px;font-weight:800;text-align:left;cursor:pointer}
+    .photobad:disabled{opacity:.75;cursor:default}
+    .photobad:active{opacity:.7}
+    details.more{margin-top:6px;color:var(--ink-3);font-size:15px}
+    details.more summary{display:flex;align-items:center;gap:8px;min-height:46px;cursor:pointer;font-weight:600;list-style:none}
+    details.more summary::-webkit-details-marker{display:none}
+    details.more summary::before{content:"?";display:grid;place-items:center;width:20px;height:20px;flex:none;border-radius:50%;
+      border:1.5px solid currentColor;font-size:13px;font-weight:900}
+    details.more[open] summary{color:var(--ink-2)}
+    details.more p{margin:0 0 6px;line-height:1.6;color:var(--ink-2)}
 
-    .foot{
-      margin-top:18px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      color:var(--dim);
-      font-size:15px;
-      line-height:1.5;
-    }
-    .link{
-      background:none;border:0;padding:12px 0;min-height:44px;
-      color:var(--muted);font-family:inherit;font-size:15px;
-      text-decoration:underline;cursor:pointer;
-    }
+    /* ④ 내 기록 줄 */
+    .log-card{padding:6px}
+    .row-btn{display:flex;align-items:center;gap:14px;width:100%;min-height:68px;padding:10px 12px;border:0;border-radius:16px;
+      background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+    .row-btn:active{background:var(--surface-2)}
+    .rb-ic{display:grid;place-items:center;width:46px;height:46px;flex:none;border-radius:13px;background:var(--surface-2);color:var(--ink-2)}
+    .rb-main{flex:1;min-width:0;display:flex;flex-direction:column}
+    .rb-title{font-size:18px;font-weight:850}
+    .rb-sub{font-size:15px;font-weight:600;color:var(--ink-3);font-variant-numeric:tabular-nums}
+    .rb-go{color:var(--ink-3)}
 
-    .toast{
-      position:fixed;
-      left:50%;
-      bottom:calc(24px + env(safe-area-inset-bottom));
-      transform:translate(-50%,140%);
-      width:min(92%,400px);
-      padding:15px 18px;
-      border-radius:16px;
-      background:var(--toast-bg);
-      border:1px solid var(--toast-line);
-      color:var(--toast-text);
-      font-size:15px;
-      line-height:1.55;
-      text-align:center;
-      box-shadow:0 14px 40px var(--shadow-strong);
-      transition:transform .25s ease;
-      z-index:40;
-    }
-    .toast.on{transform:translate(-50%,0)}
-    .toast.good{border-color:var(--toast-good)}
-    .toast.bad{border-color:var(--toast-bad)}
+    .ver{margin:20px 0 0;text-align:center;font-size:13px;color:var(--ink-3);letter-spacing:.02em}
 
-    .cover{
-      position:fixed;inset:0;
-      display:none;
-      place-items:center;
-      background:var(--cover);
-      z-index:50;
+    /* ── 설치 안내 ── */
+    .gate-hero{text-align:center;padding:22px 0 8px}
+    .icon{display:block;width:96px;height:96px;margin:0 auto;border-radius:24px;box-shadow:0 14px 36px rgba(0,0,0,.25)}
+    .gate-title{margin:16px 0 6px;font-size:25px;font-weight:900;letter-spacing:-.02em}
+    .gate-sub{margin:0 auto 18px;max-width:330px;font-size:16px;line-height:1.55;color:var(--ink-2)}
+    .steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+    .step{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;align-items:start;font-size:16px;line-height:1.55;color:var(--ink)}
+    .num{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:var(--go);color:var(--on-go);font-size:15px;font-weight:900}
+    .key{display:inline-block;padding:0 7px;border:1px solid var(--line-2);border-radius:7px;background:var(--surface-2);font-weight:800}
+    .gate-note{display:flex;gap:8px;margin:14px 2px 0;font-size:15px;line-height:1.5;color:var(--ink-3)}
+    .gate-note .ic{width:18px;height:18px;margin-top:2px}
+
+    /* ── 등록 ── */
+    .brand-row{display:flex;align-items:center;gap:10px;min-height:58px;margin:0 0 12px;font-size:17px;font-weight:850}
+    .reg-title{margin:0;font-size:24px;font-weight:900;letter-spacing:-.02em}
+    .reg-sub{margin:6px 0 4px;font-size:16px;line-height:1.55;color:var(--ink-2)}
+    label.f{display:block;margin:18px 0 8px;font-size:16px;font-weight:800;color:var(--ink-2)}
+    .f-help{margin:8px 0 0;font-size:15px;line-height:1.5;color:var(--ink-3)}
+    input[type=text],input[type=tel],input[type=password],input[type=search]{
+      width:100%;min-height:56px;padding:12px 16px;border-radius:14px;border:1.5px solid var(--field-line);
+      background:var(--surface);color:var(--ink);font-family:inherit;font-size:19px}
+    input:focus{outline:3px solid var(--focus);outline-offset:1px}
+    input.pin{font-size:24px;letter-spacing:.6em;font-variant-numeric:tabular-nums}
+    #btnRegister{margin-top:22px;min-height:60px;font-size:19px}
+    .reg-note{display:flex;gap:8px;margin:14px 2px 0;font-size:15px;line-height:1.5;color:var(--ink-3)}
+    .reg-note .ic{width:18px;height:18px;margin-top:2px}
+
+    /* ── 내 기록 ── */
+    .monthbar{position:sticky;top:env(safe-area-inset-top);z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;
+      margin:0 -16px 12px;padding:8px 16px;background:var(--bg)}
+    .monthbar strong{font-size:21px;font-weight:850;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+    .monthbar button{width:52px;height:52px;display:grid;place-items:center;padding:0;border-radius:15px;border:1px solid var(--line-2);
+      background:var(--surface);color:var(--ink);cursor:pointer}
+    .monthbar button:disabled{opacity:.35;cursor:default}
+    .log-grid{display:grid;gap:12px}
+    @media (min-width:760px){
+      .log-grid{grid-template-columns:290px minmax(0,1fr);gap:16px;align-items:start}
+      .log-sum{position:sticky;top:calc(84px + env(safe-area-inset-top))}
+      .monthbar{margin:0 0 12px;padding:8px 0}
     }
+    /* 월 요약은 작게 — 폰에서는 숫자 두 개 + 현장별 한 줄씩 (긴 현장명은 한 줄로 자르고 일수는 늘 보인다) */
+    .log-sum{padding:14px 16px}
+    .sum-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .sum-tile{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 6px;padding:8px 12px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)}
+    .sum-tile em{flex-basis:100%;font-style:normal;font-size:15px;font-weight:700;color:var(--ink-3)}
+    .sum-tile strong{font-size:24px;font-weight:850;line-height:1.2;font-variant-numeric:tabular-nums}
+    .sum-tile span{font-size:15px;color:var(--ink-3)}
+    .logsites{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:4px}
+    .logsites:empty{display:none}
+    .logsites li{display:flex;align-items:baseline;gap:10px;min-width:0;font-size:15px;color:var(--ink-2)}
+    .logsites .ls-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .logsites b{font-weight:800;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+    .sum-note{margin:8px 0 0;font-size:15px;line-height:1.5;color:var(--ink-3)}
+    .log-list{padding:6px 16px}
+    .lr-list{list-style:none;margin:0;padding:0}
+    .lr{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+    .lr:last-child{border-bottom:0}
+    .lr-date{display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:56px;border-radius:14px;background:var(--surface-2);line-height:1.15}
+    .lr-date b{font-size:21px;font-weight:850;font-variant-numeric:tabular-nums}
+    .lr-date small{font-size:15px;font-weight:700;color:var(--ink-3)}
+    .lr.holiday .lr-date b,.lr.holiday .lr-date small{color:var(--holiday)}
+    .lr.today .lr-date{background:var(--go);color:var(--on-go)}
+    .lr.today .lr-date b,.lr.today .lr-date small{color:var(--on-go)}
+    .lr-main{min-width:0;display:flex;flex-direction:column;gap:2px}
+    .lr-time{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink)}
+    .lr-miss{font-style:normal;font-weight:700;color:var(--ink-3)}
+    .lr-site{font-size:15px;line-height:1.4;color:var(--ink-3);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .lr-site .sn-sub{margin-left:6px;font-variant-numeric:tabular-nums}
+    .lr-hrs{font-size:15px;font-weight:800;color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+    .log-empty{padding:18px 0 22px;text-align:center}
+    .log-empty .art{margin:0 auto}
+    .logempty{margin:8px 0 0;font-size:16px;color:var(--ink-3)}
+    .log-empty .btn{margin:14px auto 0;max-width:260px}
+    #logBack{margin-top:14px}
+
+    /* ── 현장 고르기 (아래에서 올라오는 판 · 넓은 화면은 가운데 창) ── */
+    .sheet-bg{position:fixed;inset:0;z-index:45;display:flex;align-items:flex-end;justify-content:center;background:var(--scrim)}
+    .sheet{width:min(100%,560px);max-height:min(88vh,760px);display:flex;flex-direction:column;
+      padding:6px 16px calc(14px + env(safe-area-inset-bottom));border-radius:24px 24px 0 0;background:var(--surface);box-shadow:var(--sheet-shadow)}
+    @media (min-width:760px){ .sheet-bg{align-items:center;padding:24px} .sheet{border-radius:24px;padding-bottom:16px} }
+    .grip{width:44px;height:5px;margin:4px auto 6px;border-radius:3px;background:var(--line-2)}
+    .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:52px}
+    .sheet-head h2{margin:0;font-size:20px;font-weight:850}
+    .site-search{position:relative;margin:4px 0 2px}
+    .site-search .ic{position:absolute;left:14px;top:50%;margin-top:-11px;color:var(--ink-3)}
+    .site-search input{padding-left:46px;font-size:18px}
+    .site-search input::placeholder{color:var(--ink-3);opacity:1}
+    .site-list{overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:0 -4px;padding:0 4px 4px}
+    .site-group{margin:14px 2px 6px;font-size:15px;font-weight:800;color:var(--ink-3)}
+    .site-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;margin:0 0 6px;padding:10px 14px;
+      border:1px solid var(--line);border-radius:14px;background:var(--surface-2);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+    .site-opt.on{border-color:var(--go);box-shadow:inset 0 0 0 1.5px var(--go);background:var(--surface)}
+    .site-opt .so-name{flex:1;min-width:0;font-size:17px;font-weight:750;line-height:1.35}
+    .site-opt .sn-sub{display:block;font-size:15px;font-weight:600;color:var(--ink-3)}
+    .site-opt .ic{color:var(--go)}
+    .site-none{margin:18px 2px;font-size:16px;color:var(--ink-3)}
+
+    /* ── 알림 · 덮개 ── */
+    .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,170%);
+      width:min(calc(100% - 32px),440px);padding:14px 18px;border-radius:16px;border:2px solid transparent;
+      background:var(--toast-bg);color:var(--toast-ink);font-size:16px;line-height:1.5;text-align:center;
+      box-shadow:0 14px 40px rgba(0,0,0,.28);transition:transform .25s ease,visibility 0s linear .25s;z-index:60;visibility:hidden}
+    .toast.on{transform:translate(-50%,0);visibility:visible;transition:transform .25s ease,visibility 0s}
+    .toast.good{border-color:var(--work)}
+    .toast.bad{border-color:var(--bad)}
+
+    .cover{position:fixed;inset:0;display:none;place-items:center;background:var(--scrim);z-index:50}
     .cover.on{display:grid}
-    .cover p{margin:14px 0 0;color:var(--muted);font-size:15px}
-
-    .spinner{
-      width:38px;height:38px;
-      border:4px solid var(--spin-track);
-      border-top-color:var(--accent);
-      border-radius:50%;
-      margin:0 auto;
-      animation:spin .8s linear infinite;
-    }
+    .cover-box{min-width:220px;padding:22px 26px;border-radius:20px;background:var(--surface);text-align:center}
+    .cover p{margin:12px 0 0;color:var(--ink-2);font-size:16px}
+    .spinner{width:38px;height:38px;margin:0 auto;border:4px solid var(--line);border-top-color:var(--go);border-radius:50%;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-
-    /* 내 기록 (v55) — 현장에서 보는 화면이라 글자를 15px 아래로 내리지 않는다 */
-    .monthbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
-    .monthbar strong{font-size:20px;letter-spacing:.01em}
-    .monthbar button{width:52px;height:52px;border-radius:14px;border:1px solid var(--line2);
-      background:var(--field2);color:var(--text2);font-size:18px;cursor:pointer}
-    .monthbar button:disabled{opacity:.35}
-    .logsum{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .logsum > div{background:var(--box-bg);border:1px solid var(--box-line);border-radius:14px;padding:14px}
-    .logsum em{display:block;font-style:normal;font-size:15px;color:var(--dim);margin:0 0 4px}
-    .logsum strong{font-size:30px;line-height:1}
-    .logsum span{font-size:15px;color:var(--dim);margin-left:3px}
-    .logsites{margin:12px 0 0;font-size:15px;color:var(--text-soft);line-height:1.7}
-    /* 시각은 절대 접히지 않게 하고, 긴 현장명은 아랫줄로 내린다.
-       '박영희 상가' 처럼 이름이 길면 한 줄에서 시각이 두 줄로 접혔다 */
-    .logrow{display:grid;grid-template-columns:74px 1fr auto;gap:4px 10px;
-      padding:12px 0;border-bottom:1px solid var(--row-line)}
-    .logrow:last-child{border-bottom:0}
-    .logrow .d{grid-row:1;font-size:15px;color:var(--dim);white-space:nowrap}
-    .logrow .t{grid-row:1;font-size:16px;white-space:nowrap}
-    .logrow .h{grid-row:1;font-size:15px;color:var(--dim);white-space:nowrap;text-align:right;min-width:56px}
-    /* ★ 현장 줄은 언제나 있다 (2026-09-09). 현장이 적힌 날만 두 줄이 되어
-       한 달치를 훑을 때 줄 간격이 계속 흔들렸습니다. 비어도 자리를 지킵니다. */
-    .logrow .s{grid-row:2;grid-column:2 / -1;font-size:15px;color:var(--dim);min-height:21px;
-      overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .logrow.holiday .d{color:var(--holiday)}
-    .logempty{padding:22px 0;text-align:center;font-size:15px;color:var(--dim)}
 
     @media (prefers-reduced-motion:reduce){
       *{animation:none!important;transition:none!important}
@@ -471,104 +413,150 @@
 
   <!-- ① 홈 화면 설치 안내 -->
   <section id="viewGate" class="view">
-    <!-- ★ 112px 로 그리면서 512x512(265KB) 을 받고 있었습니다. -->
-    <img class="icon" id="appIcon" src="./icon-192.png" alt="UNION ONE 출퇴근 아이콘">
-    <img class="brand" src="./uo-logo.png" alt="UNION ONE">
-    <h1 class="sr-only">UNION ONE 현장 출퇴근</h1>
+    <div class="gate-hero">
+      <!-- ★ 아이콘을 3초 안에 5번 누르면 관리자 확인용으로 열립니다 (직원에게는 안내하지 않음) -->
+      <img class="icon" id="appIcon" src="./icon-192.png" alt="UNION ONE 출퇴근 아이콘">
+      <h1 class="gate-title">UNION ONE 출퇴근</h1>
+      <p class="gate-sub">홈 화면에 추가한 <b>출퇴근 아이콘</b>으로 열어야 기록됩니다. 한 번만 하면 됩니다.</p>
+    </div>
 
-    <!-- ★ 손에 든 폰에 맞는 안내 한 줄만 (2026-09-09). 갤럭시·아이폰을 동시에 보여주면
-         사람은 한 기기만 드는데 두 줄을 읽습니다. 다른 폰 안내는 접어 둡니다 (gateFit). -->
+    <!-- ★ 손에 든 폰에 맞는 순서만 (2026-09-09 · gateFit). 다른 폰 것은 '다른 폰이면' 안에 -->
     <div class="card">
-      <strong>휴대전화 설치 방법</strong>
-      <div class="step" id="gateAndroid"><span class="num">1</span><span><b>갤럭시</b>: Chrome ⋮ → 홈 화면에 추가 또는 앱 설치</span></div>
-      <div class="step" id="gateIos"><span class="num">1</span><span><b>아이폰</b>: Safari 공유 버튼 → 홈 화면에 추가</span></div>
-      <div class="step"><span class="num">2</span><span>홈 화면에 생긴 출퇴근 아이콘으로 실행</span></div>
-      <div class="notice">
-        출퇴근 기록은 <b>홈 화면 아이콘으로 실행할 때만</b> 가능합니다.
-      </div>
+      <div class="card-head"><h2 class="card-title">설치 순서</h2></div>
+      <ol class="steps" id="gateAndroid">
+        <li class="step"><span class="num">1</span><span><b>갤럭시 · Chrome</b> 오른쪽 위 <span class="key">⋮</span> 누르기</span></li>
+        <li class="step"><span class="num">2</span><span><b>홈 화면에 추가</b> 또는 <b>앱 설치</b> → <b>설치</b></span></li>
+        <li class="step"><span class="num">3</span><span>홈 화면에 생긴 <b>출퇴근</b> 아이콘으로 열기</span></li>
+      </ol>
+      <ol class="steps" id="gateIos">
+        <li class="step"><span class="num">1</span><span><b>아이폰 · Safari</b> 아래쪽 <b>공유</b> 버튼 누르기</span></li>
+        <li class="step"><span class="num">2</span><span><b>홈 화면에 추가</b> → 오른쪽 위 <b>추가</b></span></li>
+        <li class="step"><span class="num">3</span><span>홈 화면에 생긴 <b>출퇴근</b> 아이콘으로 열기</span></li>
+      </ol>
       <details class="more" id="gateMore">
         <summary>다른 폰이면</summary>
-        <div class="step" id="gateOther"></div>
-        <p>브라우저 주소창에서 바로 열면 기록되지 않습니다.</p>
+        <ol class="steps" id="gateOther"></ol>
       </details>
     </div>
+    <p class="gate-note"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5h.01"/></svg><span>주소창에서 바로 연 화면에서는 출퇴근이 기록되지 않습니다.</span></p>
   </section>
 
   <!-- ② 최초 등록 -->
   <section id="viewRegister" class="view">
-    <img class="brand" src="./uo-logo.png" alt="UNION ONE">
+    <div class="brand-row"><img class="tb-icon" src="./icon-192.png" alt="">UNION ONE 출퇴근</div>
     <div class="card">
-      <p class="eyebrow">최초 1회 등록</p>
-      <div class="today"><b>이 휴대전화를 등록합니다</b></div>
+      <h1 class="reg-title">이 휴대전화 등록</h1>
+      <p class="reg-sub">처음 한 번만 합니다. 워크보드에 쓰는 이름 · 전화번호 · PIN 을 그대로 넣어 주세요.</p>
 
-      <!-- 칸은 [라벨] + [빈 칸] 만 — 워크보드와 같은 규칙 (2026-09-09). 안내는 아래 한 문장 -->
-      <label for="fName">이름</label>
+      <!-- 칸은 [라벨] + [빈 칸] 만 — 워크보드와 같은 규칙 (2026-09-09). placeholder 는 쓰지 않습니다 -->
+      <label class="f" for="fName">이름</label>
       <input id="fName" type="text" inputmode="text" autocomplete="name">
 
-      <label for="fPhone">전화번호</label>
+      <label class="f" for="fPhone">전화번호</label>
       <input id="fPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="13">
 
-      <label for="fPin">PIN 4자리 (워크보드와 같은 것)</label>
-      <input id="fPin" type="password" inputmode="numeric" autocomplete="off" maxlength="4">
+      <label class="f" for="fPin">PIN 4자리</label>
+      <input id="fPin" class="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="4">
+      <p class="f-help">워크보드에 들어갈 때 쓰는 PIN 과 같습니다.</p>
 
-      <button class="btn" id="btnRegister">등록</button>
-      <p class="foot">워크보드에서 쓰시는 번호와 PIN 을 그대로 넣으시면 됩니다.</p>
+      <button class="btn" id="btnRegister">등록하기</button>
     </div>
+    <p class="reg-note"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><span>등록하면 이 폰에서 누른 출퇴근이 내 이름으로 기록됩니다.</span></p>
   </section>
 
-  <!-- ③ 본 화면 -->
-  <section id="viewApp" class="view">
-    <img class="brand" src="./uo-logo.png" alt="UNION ONE">
+  <!-- ③ 오늘 — 작은 이름/날짜 → 현장 → 상태 · 시각 → 지금 누를 버튼 하나 (2.0) -->
+  <section id="viewApp" class="view" data-st="load">
+    <header class="topbar">
+      <img class="tb-icon" src="./icon-192.png" alt="">
+      <div class="tb-who">
+        <span class="tb-name" id="whoami"></span>
+        <span class="tb-date" id="todayText"></span>
+      </div>
+      <button type="button" class="icon-btn" id="btnTheme" aria-label="화면 밝기"></button>
+      <button type="button" class="icon-btn" id="btnReload" aria-label="새로고침" title="새로고침"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4h-4"/></svg></button>
+    </header>
 
     <div class="pending" id="pending">
       <span class="dot"></span>
       <span class="txt" id="pendingText"></span>
       <button type="button" id="pendingRetry">다시 보내기</button>
     </div>
+    <div class="update" id="updateBar" hidden><span>새 버전이 준비되었습니다.</span><button type="button" id="btnUpdate">지금 적용</button></div>
 
-    <!-- ★★ 한 화면에 큰 버튼은 '지금 누를 것' 하나 (2026-09-09 · 대표님 결정 '출근').
-         예전에는 [근무중] 뱃지 · 출근 08:12 칸 · [출근 완료 · 08:12] 눌린 버튼이 같은 사실을
-         세 벌로 말했고, 출근 버튼 윗변이 400px 이라 그 위에 여섯 덩어리가 먼저 왔습니다.
-         지금은 찍힌 것은 **상태 한 줄**(근무중 · 사무실 · 출근 08:12 → 18:03)로 접고,
-         찍힌 쪽 버튼은 사라집니다. 현장 고르기도 출근 뒤에는 그 줄에 흡수됩니다.
-         ★ 눌린 버튼은 disabled 도 같이 걸립니다 — 출퇴근시험이 그것을 봅니다. -->
-    <div class="card">
-      <p class="eyebrow" id="whoami">—</p>
-      <div class="today">
-        <b id="todayText">—</b>
+    <div class="today-grid">
+      <div class="col">
+        <!-- ① 현장 — 고른 현장이 크게. 출근을 찍으면 잠긴다 (하루 중간에 바뀌어 사진이 엉뚱한 데 가는 것을 막는다) -->
+        <section class="card site-card" id="siteCard">
+          <div class="label-row">
+            <span class="label" id="siteLabel">출근할 현장</span>
+            <span class="lock" id="siteLock" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>출근 후 고정</span>
+          </div>
+          <div class="site-name" id="siteName"></div>
+          <button type="button" class="btn line site-btn" id="siteBtn" disabled><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>현장 바꾸기</button>
+          <!-- 실제 값은 이 select 가 들고 있습니다 (출근 때 보내는 현장 · 출퇴근시험 ① 이 잠김을 봅니다). 화면에는 위 판이 보입니다 -->
+          <select id="selSite" hidden tabindex="-1" aria-hidden="true"></select>
+        </section>
+
+        <!-- ② 지금 상태 — 서버가 준 status 그대로. 화면이 근무 상태를 따로 판정하지 않는다 -->
+        <section class="card state-card" id="stateCard" aria-live="polite">
+          <div class="state-head">
+            <span class="badge" id="statusBadge">불러오는 중</span>
+          </div>
+          <div class="times" id="times" hidden>
+            <div class="tm"><span class="tm-label">출근</span><strong class="tm-val" id="inTime"></strong><span class="tm-sync" id="inSync"></span></div>
+            <div class="tm" id="outTile"><span class="tm-label">퇴근</span><strong class="tm-val" id="outTime"></strong><span class="tm-sync" id="outSync"></span></div>
+          </div>
+          <p class="state-msg" id="stateMsg"></p>
+          <div class="done" id="doneArt" hidden>
+            <svg class="art" viewBox="0 0 84 66" aria-hidden="true">
+              <ellipse class="a-shadow" cx="38" cy="58" rx="27" ry="4"/>
+              <path class="a-hat" d="M16 45c0-14 9.6-24 22-24s22 10 22 24z"/>
+              <rect class="a-top" x="34.5" y="17" width="7" height="14" rx="3.5"/>
+              <rect class="a-brim" x="9" y="44" width="58" height="8" rx="4"/>
+              <circle class="a-ok" cx="64" cy="22" r="11"/>
+              <path class="a-mark" d="M59 22.4l3.4 3.4 6.6-6.8"/>
+              <path class="a-spark" d="M15 12v6M12 15h6M75 42v5M72.5 44.5h5"/>
+            </svg>
+            <div><b>오늘 근무를 마쳤습니다</b><span>수고하셨습니다. 사진과 내 기록은 아래에서 볼 수 있습니다.</span></div>
+          </div>
+          <button class="btn main" id="btnIn" disabled>출근하기</button>
+          <button class="btn main out gone" id="btnOut" disabled>퇴근하기</button>
+          <button class="btn line main" id="btnRetryLoad" hidden>다시 불러오기</button>
+          <!-- ★ 방금 찍은 것 되돌리기 (2026-09-02). 5분 안에만 뜹니다. 늘 떠 있으면 '지울 수 있는 기록' 처럼 보입니다 -->
+          <button class="undo" id="btnUndo" hidden>출근 취소</button>
+          <p class="hint" id="geoHint" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><path d="M4 4l16 16"/></svg><span>위치 권한이 꺼져 있습니다. 기록은 되지만 위치가 남지 않습니다 — 폰 설정에서 이 앱의 위치를 허용해 주세요.</span></p>
+        </section>
       </div>
-      <p class="stateline"><span class="badge none" id="statusBadge">불러오는 중</span><span id="stateText"></span></p>
 
-      <div id="siteRow">
-        <label for="selSite">근무 현장</label>
-        <select id="selSite"></select>
+      <div class="col">
+        <!-- ③ 사진 -->
+        <section class="card photo-card">
+          <div class="card-head">
+            <h2 class="card-title">현장 사진</h2>
+            <span class="count">오늘 <b id="photoCount">0</b>장 올림</span>
+          </div>
+          <!-- ★ capture="environment" 를 붙이지 않습니다 (2026-09-02) — 카메라가 바로 열려 여러 장 고르기가 막힙니다 -->
+          <input id="filePhoto" type="file" accept="image/*" multiple hidden>
+          <button type="button" class="btn line" id="btnPhoto"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.6-2.2h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>사진 올리기</button>
+          <ul class="pb-list" id="photoBatch" hidden></ul>
+          <p class="note" id="photoNote"></p>
+          <!-- ★ 못 올린 사진은 **눈에 보이게** 남깁니다 (2026-09-02). 조용히 사라지면 아무도 모릅니다 -->
+          <button class="photobad" id="photoBad" hidden></button>
+          <details class="more">
+            <summary>카메라 · 앨범이 안 열리면</summary>
+            <p>폰 설정 › 애플리케이션(아이폰은 설정 › Safari) › 카메라 · 사진 권한을 허용한 뒤 다시 눌러 주세요.</p>
+          </details>
+        </section>
+
+        <!-- ④ 내 기록 -->
+        <section class="card log-card">
+          <button type="button" class="row-btn" id="btnLog">
+            <span class="rb-ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg></span>
+            <span class="rb-main"><span class="rb-title">내 기록</span><span class="rb-sub" id="logHint">이번 달</span></span>
+            <svg class="ic rb-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </section>
       </div>
-
-      <button class="btn" id="btnIn">출근</button>
-      <button class="btn out" id="btnOut">퇴근</button>
-      <!-- ★ 방금 찍은 것 되돌리기 (2026-09-02).
-           5분 안에만 뜹니다. 늘 떠 있으면 '지울 수 있는 기록' 처럼 보입니다. -->
-      <button class="undo" id="btnUndo" hidden>출근 취소</button>
-    </div>
-
-    <!-- ★ 사진과 이번 달은 한 줄 두 버튼 (2026-09-09). 카드 두 장이 각각 세 줄로
-         한 가지를 말하고, 출근 카드와 같은 테두리라 무게가 같아 보였습니다. -->
-    <div class="card slim">
-      <div class="row2">
-        <!-- ★ capture="environment" 를 뗐습니다 (2026-09-02).
-             그것이 붙어 있으면 카메라가 바로 열려서 multiple 이 무력화됩니다. -->
-        <input id="filePhoto" type="file" accept="image/*" multiple hidden>
-        <button class="btn ghost" id="btnPhoto">사진 · 오늘 <span id="photoCount">0</span>장</button>
-        <button class="btn ghost" id="btnLog"><span id="logHint">이번 달</span></button>
-      </div>
-      <p class="note" id="photoNote"></p>
-      <!-- ★ 못 올린 사진은 **눈에 보이게** 남깁니다 (2026-09-02).
-           조용히 사라지면 아무도 모릅니다. 눌러서 다시 보냅니다. -->
-      <button class="photobad" id="photoBad" hidden></button>
-    </div>
-
-    <div class="foot">
-      <button class="link" id="btnReload">새로고침</button>
     </div>
 
     <p class="ver" id="verLine"></p>
@@ -577,35 +565,60 @@
   <!-- ④ 내 기록 -->
   <section id="viewLog" class="view">
     <!-- 돌아가는 길은 위에도 (2026-09-09). 날짜 31줄 아래에만 있어 끝까지 내려야 했습니다 -->
-    <div class="foot top"><button class="link" id="logBackTop">← 돌아가기</button></div>
-    <div class="card">
-      <div class="monthbar">
-        <button type="button" id="logPrev" aria-label="지난 달">◀</button>
-        <strong id="logYm">-</strong>
-        <button type="button" id="logNext" aria-label="다음 달">▶</button>
-      </div>
-      <div class="logsum">
-        <div><em>나온 날</em><strong id="logDays">0</strong><span>일</span></div>
-        <div><em>일한 시간</em><strong id="logHours">0</strong><span>시간</span></div>
-      </div>
-      <div id="logSites" class="logsites"></div>
+    <header class="topbar">
+      <button type="button" class="back" id="logBackTop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>오늘</button>
+      <h1 class="tb-title">내 기록</h1>
+      <span class="tb-space"></span>
+    </header>
+
+    <div class="log-grid">
+      <aside class="log-side">
+        <div class="monthbar">
+          <button type="button" id="logPrev" aria-label="지난 달"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <strong id="logYm">-</strong>
+          <button type="button" id="logNext" aria-label="다음 달"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+        <div class="card log-sum">
+          <div class="sum-tiles">
+            <div class="sum-tile"><em>나온 날</em><strong id="logDays"></strong><span>일</span></div>
+            <div class="sum-tile"><em>일한 시간</em><strong id="logHours"></strong><span>시간</span></div>
+          </div>
+          <ul id="logSites" class="logsites"></ul>
+          <p class="sum-note">일한 시간은 출근과 퇴근이 모두 찍힌 날만 더합니다.</p>
+        </div>
+      </aside>
+
+      <section class="card log-list">
+        <div id="logRows"></div>
+      </section>
     </div>
 
-    <div class="card">
-      <div id="logRows"></div>
-    </div>
-
-    <div class="foot">
-      <button class="link" id="logBack">돌아가기</button>
-    </div>
+    <button type="button" class="btn line" id="logBack">오늘 화면으로</button>
   </section>
 
 </main>
 
-<div class="toast" id="toast"></div>
+<!-- 현장 고르기 -->
+<div class="sheet-bg" id="sitePanel" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sitePanelTitle">
+    <div class="grip"></div>
+    <div class="sheet-head">
+      <h2 id="sitePanelTitle">출근할 현장 고르기</h2>
+      <button type="button" class="icon-btn" id="sitePanelClose" aria-label="닫기"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="site-search" id="siteSearchRow">
+      <label class="sr-only" for="siteSearch">현장 이름으로 찾기</label>
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      <input id="siteSearch" type="search" autocomplete="off" enterkeyhint="search" placeholder="현장 이름 일부로 찾기">
+    </div>
+    <div class="site-list" id="siteList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
 
 <div class="cover" id="cover">
-  <div>
+  <div class="cover-box">
     <div class="spinner"></div>
     <p id="coverText">처리 중입니다</p>
   </div>
@@ -620,13 +633,17 @@
  *   워크보드에서 승인받은 사람만 이 기기를 등록할 수 있습니다.
  *   앱스스크립트를 고칠 때는 "새 배포"가 아니라
  *   배포 관리 → 연필 → 버전: 새 버전 으로 올려야 이 주소가 유지됩니다.
+ *
+ * ★★ 2.0 (2026-10-01) — 화면 배치 · 상태 표현 · 현장 고르기 · 사진 진행 · 내 기록을 새로 짰습니다.
+ *   기록을 만드는 길(보류함 · 다시 보내기 · 누른 시각 · 중복 막기 · 되돌리기 5분 · 사진 보관함)은
+ *   예전 그대로입니다. 바뀐 것은 '보여주는 쪽' 입니다.
  *************************************************************/
 const API_URL = "https://script.google.com/macros/s/AKfycbzTybR0LIssoSKflPmkdDhVp6IHUKcqLY0ZU0fwekjMwsQPzXU_scaTD4PgNJ_NUWIaTw/exec";
 
 /* ★ 판 번호 — 화면을 고쳐 올릴 때마다 0.01 씩 올리세요.
    본 화면 맨 아래에 그대로 나옵니다. 새 것이 올라갔는지 눈으로 확인하는 자리입니다.
    (견적 앱의 APP_VERSION 과 같은 역할입니다) */
-const APP_VERSION = '1.11';
+const APP_VERSION = '2.00';
 
 /* 기기 식별값을 담는 이름. 한 번 정하면 절대 바꾸지 말 것 — 바꾸면 모든 폰을 다시 등록해야 합니다. */
 const DEVICE_TOKEN_KEY = 'uo_attendance_launcher_device_v1';
@@ -636,8 +653,15 @@ let state = null;
 let busy = false;              // 등록처럼 화면을 막아야 하는 일
 let photoBusy = false;         // 사진을 뒤에서 올리는 중
 let lastFetchAt = 0;           // 마지막으로 서버에서 받아온 시각
+let pickedSite = '';           // 출근 전에 고른 현장 (2.0) — 저장하지 않는다. 출근이 기록되면 서버가 남긴다
+let lastGeoErr = 0;            // 위치를 못 잡은 이유 (2.0) — 1 이면 권한이 꺼져 있다
 
-function sleep(ms){ return new Promise((r) => setTimeout(r, ms)); }
+/* 서버 · 사람이 적은 글을 화면 HTML 에 넣을 때 */
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
 
 /* ---------- 기기 토큰 ---------- */
 function deviceToken(){
@@ -650,6 +674,49 @@ function deviceToken(){
 
   localStorage.setItem(DEVICE_TOKEN_KEY, token);
   return token;
+}
+
+/* ---------- 화면 밝기 (2.0) ----------
+   자동(폰 설정) → 밝게 → 어둡게 차례로 바뀝니다. 고른 것은 이 폰에만 남습니다. */
+const THEME_KEY = 'uo_att_theme';
+const THEME_ORDER = ['auto', 'light', 'dark'];
+const THEME_NAME = { auto:'자동', light:'밝게', dark:'어둡게' };
+const THEME_ICON = {
+  auto: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>',
+  light: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>',
+  dark: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>'
+};
+
+function themeNow(){
+  try{
+    const t = localStorage.getItem(THEME_KEY);
+    return THEME_ORDER.indexOf(t) >= 0 ? t : 'auto';
+  }catch(err){ return 'auto'; }
+}
+
+function applyTheme(t){
+  const root = document.documentElement;
+  if(t === 'auto') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', t);
+
+  const dark = t === 'dark' ||
+    (t === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', dark ? '#0E1318' : '#EEF1EC');
+
+  const b = $('btnTheme');
+  if(b){
+    b.innerHTML = THEME_ICON[t];
+    b.setAttribute('aria-label', '화면 밝기: ' + THEME_NAME[t] + ' (눌러서 바꾸기)');
+    b.title = '화면 밝기: ' + THEME_NAME[t];
+  }
+}
+
+function nextTheme(){
+  const t = THEME_ORDER[(THEME_ORDER.indexOf(themeNow()) + 1) % THEME_ORDER.length];
+  try{ localStorage.setItem(THEME_KEY, t); }catch(err){}
+  applyTheme(t);
+  toast('화면 밝기: ' + THEME_NAME[t]);
 }
 
 /* ---------- 화면 전환 ---------- */
@@ -695,7 +762,9 @@ async function doUndo(){
   if(!confirm(what === 'out' ? '방금 찍은 퇴근을 취소할까요?' : '방금 찍은 출근을 취소할까요?')) return;
 
   b.disabled = true;
-  const res = await api({ action:"undo", what: what });
+  let res = null;
+  try{ res = await api({ action:"undo", what: what }); }
+  catch(err){ res = null; }
   b.disabled = false;
 
   if(!res || !res.ok){
@@ -709,7 +778,7 @@ async function doUndo(){
     }
     if(c === 'NOT_REGISTERED'){ toast(res.message, 'bad'); show('viewRegister'); return; }
     if(c === 'BUSY' || c === 'BAD'){ toast(res.message || '잠시 후 다시 눌러 주세요.', 'bad'); return; }
-    toast((res && res.message) || '취소하지 못했습니다.', 'bad');
+    toast((res && res.message) || '취소하지 못했습니다. 인터넷 연결을 확인해 주세요.', 'bad');
     return;
   }
   toast(res.message || '취소했습니다.');
@@ -718,6 +787,7 @@ async function doUndo(){
 
 function show(id){
   ['viewGate','viewRegister','viewApp','viewLog'].forEach(v => $(v).classList.toggle('on', v === id));
+  try{ window.scrollTo(0, 0); }catch(err){}
 }
 
 function cover(on, text){
@@ -731,7 +801,7 @@ function toast(text, kind){
   el.textContent = text;
   el.className = 'toast on' + (kind ? ' ' + kind : '');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.className = 'toast'; }, 3200);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, 3400);
 }
 
 /* ---------- 통신 ----------
@@ -774,14 +844,11 @@ async function api(payload){
  * ★ 예전에는 '저장해둔 위치는 절대 쓰지 말고 새로 잡아라'(maximumAge:0) 였습니다.
  *   건물 안이나 지하 주차장이면 위성을 못 잡아 12초를 다 채우고 실패했고,
  *   그러면 '위치 없이 기록할까요?' 확인 창이 한 번 더 떴습니다.
- *   아침저녁 5초로 끝나야 할 일이 15초가 되던 가장 큰 이유였습니다.
- *
- *   같은 회사의 견적 앱은 이미 1분 이내의 위치를 다시 쓰고 있었습니다.
- *   출퇴근만 매번 새로 잡고 있었습니다.
  *
  * 이제 2분 이내에 잡아 둔 위치가 있으면 그대로 씁니다.
  * 아침에 현장에 도착해서 찍는 상황이라 2분 전 위치와 지금 위치가 다를 일이 없고,
  * 사진을 여러 장 올릴 때도 위치를 다시 잡지 않습니다.
+ * ★ 위치는 지어내지 않습니다. 못 잡으면 빈 채로 보내고, 서버는 원래 위치 없는 기록을 받습니다.
  */
 const GPS_MAX_AGE = 120000;   // 2분 이내면 담아둔 위치를 그대로 쓴다
 const GPS_TIMEOUT = 6000;     // 6초에 못 잡으면 12초를 더 줘도 못 잡는다
@@ -804,23 +871,26 @@ function getPosition(){
           acc: Math.round(p.coords.accuracy)
         };
         lastFix = { at: Date.now(), pos: pos };
+        lastGeoErr = 0; paintGeoHint();
         resolve(pos);
       },
-      () => resolve(null),
+      (err) => { lastGeoErr = (err && err.code) || 0; paintGeoHint(); resolve(null); },
       { enableHighAccuracy:true, timeout:GPS_TIMEOUT, maximumAge:GPS_MAX_AGE }
     );
   });
 }
 
 /* 앱을 열자마자 · 앱으로 돌아올 때마다 위치를 미리 잡아 둡니다 (2026-09-01).
-
-   ★ 여기가 체감의 절반이었습니다.
-     아침에 앱을 열고 출근을 누르면 그때서야 위성을 찾기 시작해서
-     **버튼을 누른 뒤에 최대 6초를 서서 기다렸습니다.**
-     미리 잡아 두면 누르는 순간 0초입니다.
-   결과는 lastFix 에 남고, 2분 안이면 그대로 씁니다. */
+   아침에 앱을 열고 출근을 누르면 그때서야 위성을 찾기 시작해서
+   **버튼을 누른 뒤에 최대 6초를 서서 기다렸습니다.** 미리 잡아 두면 누르는 순간 0초입니다. */
 function warmPosition(){
   try { getPosition(); } catch(err){ /* 못 잡아도 누를 때 다시 잡습니다 */ }
+}
+
+/* 위치 권한이 꺼져 있으면 상태 판 아래에 한 줄 — 할 일(설정에서 허용)만 짧게 (2.0) */
+function paintGeoHint(){
+  const h = $('geoHint');
+  if(h) h.hidden = lastGeoErr !== 1;
 }
 
 /* pending 을 넘기면 이미 시작해 둔 위치잡기를 그대로 씁니다.
@@ -843,40 +913,51 @@ async function positionOrConfirm(pending){
   /* ★ 두 번째 확인창을 띄우지 않습니다 (2026-09-09).
      건물 안·지하에서는 매번 떴고, 여기서 '취소' 를 누르면 출근 자체가 안 찍혔습니다.
      기록은 그대로 하고 위치가 없다는 것만 알립니다. 서버는 원래 위치 없는 기록을 받습니다. */
-  toast('위치는 확인되지 않았습니다. 기록은 그대로 남깁니다.');
+  toast(lastGeoErr === 1
+    ? '위치 권한이 꺼져 있어 위치 없이 기록합니다. 폰 설정에서 위치를 허용해 주세요.'
+    : '위치는 확인되지 않았습니다. 기록은 그대로 남깁니다.');
   return {};
 }
 
 /* ---------- 상태 반영 ---------- */
+
+/* 서버가 준 상태를 받아 둔다.
+   ★ 출근 · 퇴근 · 사진 응답에는 휴가 칸(leave)이 없습니다 — 같은 날이면 앞서 받은 값을 이어 씁니다.
+     안 그러면 사진 한 장 올린 뒤 '오늘 연차' 표시가 사라집니다. */
+function adopt(res){
+  if(res && res.leave === undefined && state && state.date === res.date) res.leave = state.leave;
+  return res;
+}
+
 function paint(){
   if(!state || !state.registered) return;
 
-  /* 전화번호는 첫 줄에 두지 않습니다 (2026-09-09) — 본인 번호를 매일 볼 이유가 없고
-     화면 첫 글자가 숫자 열한 자리라 눈이 거기서 먼저 멈췄습니다. 등록 화면에서 이미 봅니다. */
-  $('whoami').textContent = state.name;
+  /* 전화번호는 첫 줄에 두지 않습니다 (2026-09-09) — 본인 번호를 매일 볼 이유가 없습니다. */
+  $('whoami').textContent = state.name || '';
   $('todayText').textContent = dateLabel(state.date);
-  const badge = $('statusBadge');
-  /* ★ 오늘 휴가면 그대로 알려 준다 (2026-09-02).
-     승인까지 받은 휴가인데 '미출근' 이라고 떠 있으면 사람이 불안합니다.
-     ★ **출근 단추는 그대로 살려 둡니다** — 휴가여도 나오는 날이 있습니다. */
-  badge.textContent = (!state.inTime && state.leave) ? state.leave : state.status;
-  badge.className = 'badge ' + (state.status === '퇴근완료' ? 'done'
-    : state.status === '근무중' ? 'work'
-    : (state.leave ? 'work' : 'none'));
 
-  /* 상태 한 줄 — 찍힌 것만 적는다. 안 찍혔으면 줄 자체가 없다 */
-  const parts = [];
-  if(state.inTime){
-    parts.push(state.siteName || '사무실');
-    parts.push('출근 ' + state.inTime + (state.outTime ? (' → ' + state.outTime) : ''));
-  }
-  $('stateText').textContent = parts.join(' · ');
+  /* ★ 상태는 서버가 준 status 그대로입니다. 화면이 근무 상태를 따로 판정하지 않습니다.
+     휴가는 '출근 전' 일 때만 앞에 둡니다 — 휴가여도 나오는 날이 있어 **출근 버튼은 살려 둡니다** (2026-09-02). */
+  let st = 'none', badge = '출근 전', msg = '';
+  if(state.status === '퇴근완료'){ st = 'done'; badge = '퇴근 완료'; }
+  else if(state.status === '근무중'){ st = 'work'; badge = '근무 중'; }
+  else if(state.leave){ st = 'leave'; badge = '오늘 ' + state.leave; msg = '휴가로 등록된 날입니다. 나와서 일하면 출근하기를 눌러 주세요.'; }
+  $('viewApp').dataset.st = st;
+  $('statusBadge').textContent = badge;
+  $('stateMsg').textContent = msg;
 
+  /* 찍힌 시각만 보여 준다 — 안 찍힌 칸은 아예 그리지 않는다 (빈 칸에 '-' 를 적지 않는다) */
+  $('times').hidden = !state.inTime;
+  $('inTime').textContent = state.inTime || '';
+  $('outTime').textContent = state.outTime || '';
+  $('outTile').hidden = !state.outTime;
+  paintSync();
+
+  $('doneArt').hidden = st !== 'done';
+  $('btnRetryLoad').hidden = true;
   $('photoCount').textContent = state.photos || 0;
 
   paintSites();
-  /* 출근을 찍으면 현장은 상태 줄로 옮겨 가고 고르는 칸은 사라진다 */
-  $('siteRow').classList.toggle('gone', !!state.inTime);
 
   /* ★ 큰 버튼은 지금 누를 것 하나만. 찍힌 쪽은 disabled(시험이 봅니다) + 감춤 */
   $('btnIn').disabled = !!state.inTime;
@@ -887,19 +968,88 @@ function paint(){
   /* ★ 방금(5분 안) 찍은 것만 되돌릴 수 있습니다.
      보류함에 아직 못 보낸 것이 있으면 숨깁니다 — 서버에 없는 것을 되돌릴 수 없습니다. */
   paintUndo(state);
+  paintGeoHint();
 }
 
-/* 현장 목록을 채운다.
-   지난번에 고른 현장이 이미 골라진 채로 뜨므로,
-   같은 현장이면 출근 버튼만 누르면 된다.
-   출근을 찍은 뒤에는 바꿀 수 없게 잠근다. */
+/* 시각 옆 작은 표시 — '보내는 중'(보류함에 있음) · '확인 중'(담아둔 화면) · '기록됨'(서버가 돌려준 값) (2.0)
+   ★ 화면이 먼저 바뀐 것을 기록 완료로 오해하지 않게, 서버가 받은 것만 '기록됨' 입니다. */
+function paintSync(){
+  if(!state || !state.registered) return;
+  const q = queueLoad();
+  [['checkin', state.inTime, 'inSync'], ['checkout', state.outTime, 'outSync']].forEach(function(x){
+    const el = $(x[2]);
+    if(!el) return;
+    const item = q.filter(function(one){ return one.action === x[0]; })[0];
+    let s = '', t = '';
+    if(x[1]){
+      if(item){
+        s = (item.tries || 0) > QUEUE_WAIT.length ? 'bad' : 'wait';
+        t = s === 'bad' ? '아직 못 보냄' : '보내는 중';
+      }else if(state.__snap){ s = 'wait'; t = '확인 중'; }
+      else { s = 'ok'; t = '기록됨'; }
+    }
+    el.dataset.s = s;
+    el.textContent = t;
+  });
+}
+
+/* 처음 불러오는 중 — 판은 자리만 잡고, 출근 버튼은 받아 올 때까지 잠근다 */
+function paintLoading(){
+  $('viewApp').dataset.st = 'load';
+  $('statusBadge').textContent = '불러오는 중';
+  $('stateMsg').textContent = '';
+  $('times').hidden = true;
+  $('doneArt').hidden = true;
+  $('btnIn').classList.remove('gone');
+  $('btnIn').disabled = true;
+  $('btnOut').classList.add('gone');
+  $('btnRetryLoad').hidden = true;
+  $('siteName').textContent = '';
+  $('siteBtn').disabled = true;
+  $('btnUndo').hidden = true;
+}
+
+/* ★ 불러오기 실패 (2.0) — 예전에는 등록된 사람도 '최초 등록' 화면으로 보냈습니다.
+   등록이 풀렸는지는 서버만 압니다. 못 받았으면 못 받았다고만 하고 다시 시도하게 합니다. */
+function paintFail(){
+  $('viewApp').dataset.st = 'fail';
+  $('statusBadge').textContent = '연결 안 됨';
+  $('stateMsg').textContent = '오늘 기록을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 불러와 주세요.';
+  $('times').hidden = true;
+  $('doneArt').hidden = true;
+  $('btnIn').classList.add('gone');
+  $('btnOut').classList.add('gone');
+  $('btnRetryLoad').hidden = false;
+  $('btnUndo').hidden = true;
+}
+
+/* ── 현장 ──────────────────────────────────────────────────
+   지난번에 고른 현장이 이미 골라진 채로 뜨므로, 같은 현장이면 출근 버튼만 누르면 된다.
+   출근을 찍은 뒤에는 바꿀 수 없게 잠근다.
+   ★ 실제 값은 숨은 select(#selSite)가 듭니다 — 출근 때 보내는 값이고, 출퇴근시험이 잠김을 봅니다. */
+function siteList(){
+  return (state && state.sites && state.sites.length) ? state.sites : [{ name:'사무실', folderId:'' }];
+}
+
+/* 현장 이름 끝의 날짜(_20260915)는 작은 글씨로 — 이름이 먼저 읽힌다. 값(보내는 이름)은 그대로 쓴다 */
+function siteSplit(name){
+  const s = String(name || '');
+  const m = /^(.*\S)_(\d{4})(\d{2})(\d{2})$/.exec(s);
+  return m ? { main: m[1], date: m[2] + '. ' + m[3] + '. ' + m[4] } : { main: s, date: '' };
+}
+function siteHTML(name){
+  const p = siteSplit(name);
+  return esc(p.main) + (p.date ? '<span class="sn-sub">' + p.date + '</span>' : '');
+}
+
 function paintSites(){
   const sel = $('selSite');
-  const list = (state && state.sites && state.sites.length)
-    ? state.sites
-    : [{ name:'사무실', folderId:'' }];
+  const list = siteList();
+  if(state.siteLocked) pickedSite = '';
 
-  const want = (state && state.siteName) || '사무실';
+  const want = state.siteLocked
+    ? (state.siteName || '사무실')
+    : (pickedSite || state.siteName || '사무실');
 
   sel.innerHTML = '';
   list.forEach(function(one){
@@ -920,6 +1070,90 @@ function paintSites(){
   }
 
   sel.disabled = !!state.siteLocked;
+
+  $('siteName').innerHTML = siteHTML(want);
+  $('siteLabel').textContent = state.siteLocked ? '오늘 현장' : '출근할 현장';
+  $('siteLock').hidden = !state.siteLocked;
+  $('siteBtn').hidden = !!state.siteLocked;
+  $('siteBtn').disabled = false;
+}
+
+/* ★ 최근 현장은 **실제로 출근이 기록된 곳만** (2.0).
+   서버가 남긴 마지막 현장(state.siteName) + 이 폰에서 출근이 서버에 들어간 현장. 눌러 보기만 한 것은 넣지 않는다. */
+const RECENT_KEY = 'uo_att_recent_sites_v1';
+
+function recentSites(){
+  try{
+    const a = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+    return Array.isArray(a) ? a.filter(function(x){ return typeof x === 'string'; }) : [];
+  }catch(err){ return []; }
+}
+
+function rememberSite(name){
+  if(!name) return;
+  const a = recentSites().filter(function(n){ return n !== name; });
+  a.unshift(name);
+  try{ localStorage.setItem(RECENT_KEY, JSON.stringify(a.slice(0, 5))); }catch(err){}
+}
+
+function 이름맞춤(s){ return String(s || '').replace(/\s+/g, '').toLowerCase(); }
+
+function paintSiteList(q){
+  const names = siteList().map(function(o){ return o.name; });
+  const cur = $('selSite').value;
+  const 찾기 = 이름맞춤(q);
+  const CHECK = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+  function 묶음(title, arr){
+    return '<p class="site-group">' + esc(title) + '</p>' + arr.map(function(n){
+      return '<button type="button" class="site-opt' + (n === cur ? ' on' : '') + '" data-site="' + esc(n) + '"' +
+             (n === cur ? ' aria-current="true"' : '') + '>' +
+             '<span class="so-name">' + siteHTML(n) + '</span>' + (n === cur ? CHECK : '') + '</button>';
+    }).join('');
+  }
+
+  let html = '';
+  if(!찾기){
+    const recent = [state && state.siteName].concat(recentSites()).filter(function(n, i, a){
+      return n && a.indexOf(n) === i && names.indexOf(n) >= 0 && n !== '사무실' && n !== '기타현장';
+    }).slice(0, 3);
+    if(recent.length) html += 묶음('최근 출근한 현장', recent);
+    html += 묶음('전체 ' + names.length + '곳', names);
+  }else{
+    const hit = names.filter(function(n){ return 이름맞춤(n).indexOf(찾기) >= 0; });
+    html = hit.length ? 묶음('찾은 현장 ' + hit.length + '곳', hit) : '<p class="site-none">맞는 현장이 없습니다. 이름 일부만 넣어 보세요.</p>';
+  }
+  $('siteList').innerHTML = html;
+}
+
+function openSitePanel(){
+  if(!state || !state.registered || state.siteLocked) return;
+  $('siteSearch').value = '';
+  $('siteSearchRow').hidden = siteList().length <= 8;      /* 몇 곳 안 되면 찾기 칸도 없다 */
+  paintSiteList('');
+  $('sitePanel').hidden = false;
+  document.body.classList.add('sheet-open');
+  pushLayer('site');
+  setTimeout(function(){
+    const on = $('siteList').querySelector('.site-opt.on');
+    if(on && on.scrollIntoView) on.scrollIntoView({ block:'nearest' });
+    (on || $('sitePanelClose')).focus({ preventScroll:true });
+  }, 30);
+}
+
+function closeSitePanel(fromPop){
+  if($('sitePanel').hidden) return;
+  $('sitePanel').hidden = true;
+  document.body.classList.remove('sheet-open');
+  if(!fromPop) popLayer('site');
+  try{ $('siteBtn').focus({ preventScroll:true }); }catch(err){}
+}
+
+/* 폰의 '뒤로' 로 판 · 내 기록을 닫는다 (2.0). 앱이 통째로 닫히던 것 */
+function pushLayer(name){ try{ history.pushState({ uo: name }, ''); }catch(err){} }
+function popLayer(name){
+  if(history.state && history.state.uo === name){ try{ history.back(); }catch(err){} return true; }
+  return false;
 }
 
 function dateLabel(key){
@@ -927,29 +1161,23 @@ function dateLabel(key){
   const parts = key.split('-');
   const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   const days = ['일','월','화','수','목','금','토'];
-  return Number(parts[1]) + '월 ' + Number(parts[2]) + '일 (' + days[d.getDay()] + ')';
+  return Number(parts[1]) + '월 ' + Number(parts[2]) + '일 ' + days[d.getDay()] + '요일';
 }
 
 /* ---------- 마지막으로 서버가 알려준 상태를 담아둔다 ----------
  *
  * 앱을 열 때마다 서버 왕복이 끝날 때까지 회색 덮개만 보였습니다.
- * 아침에 5초 안에 찍어야 하는 앱인데, 그 5초의 절반을 여기서 썼습니다.
- * 게다가 앱으로 되돌아올 때마다(visibilitychange) 덮개가 다시 떴습니다.
- *
  * 이제 담아둔 것을 먼저 그리고, 새 것은 뒤에서 받아 갈아끼웁니다.
- * 워크보드의 saveSnap() 과 같은 방식입니다.
  *
  * ★ 어제 것을 오늘 것처럼 보여주면 안 되므로 날짜가 오늘일 때만 씁니다.
  * ★ 기록을 만드는 것은 언제나 서버입니다. 서버가 잠금을 걸고 시트를 직접 읽어
  *   '오늘 출근 기록이 이미 있습니다' 로 막습니다 (Api.js · apiCheck_).
  *   그래서 담아둔 값이 낡아도 잘못된 기록이 남을 수는 없습니다.
+ * ★ 담아둔 화면의 시각 옆에는 '확인 중' 이 붙습니다 — 서버에서 새로 받기 전까지는 기록 완료라고 하지 않습니다.
  */
 const SNAP_KEY = 'uo_attendance_snap_v1';
 
 /* ★ 뒤에서 조용히 도는 갱신이 **방금 찍은 출퇴근을 덮어쓰지 않게** 하는 번호표.
-   예전에는 앱을 열면 회색 덮개가 떠서 사람이 아무것도 누를 수 없었기 때문에
-   이런 일이 생길 수 없었습니다. 이제 덮개를 없앴으니
-   '갱신을 보내둔 사이에 출근을 찍는' 경우가 생깁니다.
    통신이 느리면 늦게 도착한 옛 상태가 방금 찍은 출근을 지워
    버튼이 다시 살아나고, 사람이 또 누르게 됩니다.
    그래서 상태를 바꾼 횟수를 세어, 보내둔 사이에 바뀌었으면 결과를 버립니다. */
@@ -990,15 +1218,20 @@ function loadSnap(){
   }catch(err){ return null; }
 }
 
+/* ★ 자정을 넘겨 열어 둔 화면 (2.0) — 어제 상태로 오늘 출퇴근을 누르지 않게
+   화면을 '불러오는 중' 으로 비우고 서버에 다시 묻는다. 새 기록을 지어내지 않는다. */
+function checkDay(){
+  if(!state || !state.registered || !state.date) return;
+  if(state.date === todayKey()) return;
+  state = null;
+  try{ localStorage.removeItem(SNAP_KEY); }catch(err){}
+  paintLoading();
+  refresh(true);
+}
+
 /* ---------- 보류함 (2026-09-02) ----------
  *
- * ★ 왜 만들었나
- *   예전에는 출근을 누르면 회색 덮개가 뜨고, 서버 왕복이 끝날 때까지
- *   **손에 폰을 든 채로 1~2초를 서서 기다렸습니다.**
- *   아침저녁 5초로 끝나야 하는 앱에서 그 1~2초가 가장 길게 느껴지는 구간이었습니다.
- *
- * ★ 이제는 이렇게 움직입니다
- *   ① 누르는 순간 화면이 먼저 바뀐다 (출근 08:12 · 근무중)
+ *   ① 누르는 순간 화면이 먼저 바뀐다 (출근 08:12 · 근무 중)
  *   ② 보낼 것은 보류함에 적어 두고 **뒤에서** 보낸다
  *   ③ 통신이 안 되면 저절로 다시 보낸다 (2초 → 6초 → 15초 → 40초)
  *   ④ 그래도 안 되면 화면 위에 빨간 줄로 알리고, 앱을 다시 열 때 또 시도한다
@@ -1065,6 +1298,7 @@ function labelOf(action){ return action === 'checkin' ? '출근' : '퇴근'; }
 function paintPending(){
   const box = $('pending');
   const list = queueLoad();
+  paintSync();
 
   if(!list.length && !photoBusy){
     box.className = 'pending';
@@ -1083,7 +1317,7 @@ function paintPending(){
 
   if(막힌것.length){
     box.className = 'pending on bad';
-    $('pendingText').textContent = 이름 + ' 기록을 아직 보내지 못했습니다';
+    $('pendingText').textContent = 이름 + ' 기록을 아직 보내지 못했습니다. 연결되면 저절로 다시 보냅니다.';
     $('pendingRetry').hidden = false;
   }else{
     box.className = 'pending on wait';
@@ -1094,6 +1328,20 @@ function paintPending(){
 
 /* 보류함을 비운다. 한 번에 하나씩, 앞에서부터. */
 let flushing = false;
+
+/* ★ 다시 보내기를 기다리는 동안 통신이 붙으면 기다림을 끊고 바로 보낸다 (2.0).
+   예전에는 40초 기다림 한가운데에 통신이 붙어도 그 40초를 다 채웠습니다. */
+let wakeFlush = null;
+function flushWait(ms){
+  return new Promise(function(r){
+    const t = setTimeout(function(){ wakeFlush = null; r(); }, ms);
+    wakeFlush = function(){ clearTimeout(t); wakeFlush = null; r(); };
+  });
+}
+function flushNow(){
+  if(wakeFlush) wakeFlush();
+  flushQueue(); pqFlush();
+}
 
 async function flushQueue(){
   if(flushing) return;
@@ -1120,8 +1368,9 @@ async function flushQueue(){
       if(res && res.ok){
         queueDrop(item.id);
         writeSeq++;
-        state = res;
+        state = adopt(res);
         lastFetchAt = Date.now();
+        if(item.action === 'checkin') rememberSite(res.siteName || item.siteName);
         paint(); saveSnap();
         toast(res.message || (labelOf(item.action) + '이 기록되었습니다.'), 'good');
         dropLogCache();
@@ -1178,7 +1427,7 @@ async function flushQueue(){
         break;
       }
 
-      await sleep(QUEUE_WAIT[item.tries - 1]);
+      await flushWait(QUEUE_WAIT[item.tries - 1]);
     }
   }finally{
     flushing = false;
@@ -1214,17 +1463,21 @@ async function refresh(quiet){
       try{ localStorage.removeItem(SNAP_KEY); }catch(err){}
       show('viewRegister');
     }else{
-      show('viewApp');
+      /* ★ 내 기록을 보는 중에 뒤에서 갱신이 끝나도 오늘 화면으로 끌고 가지 않는다 (2.0) */
+      if(!$('viewLog').classList.contains('on')) show('viewApp');
       applyPendingLocal();      /* 아직 못 보낸 것이 있으면 화면에 그대로 얹는다 */
       paint();
       saveSnap();
     }
   }catch(err){
     /* ★ 이미 보여줄 것이 있으면 그대로 두고 알리기만 한다.
-       예전에는 통신이 한 번 끊기기만 해도 이미 등록한 사람을
-       '최초 1회 등록' 화면으로 되돌려 보냈습니다.
-       (새로고침을 눌렀을 때도 마찬가지였습니다) */
-    if(!state || !state.registered) show('viewRegister');
+       ★★ 2.0 — 보여줄 것이 없어도 '최초 등록' 화면으로 보내지 않는다.
+         예전에는 통신이 한 번 끊기기만 해도 이미 등록한 사람을 등록 화면으로 되돌려 보냈습니다.
+         등록이 풀렸는지는 서버가 registered:false 로 알려 줄 때만 압니다. */
+    if(!state){
+      show('viewApp');
+      paintFail();
+    }
     toast('연결에 실패했습니다. 인터넷 상태를 확인해 주세요.', 'bad');
   }finally{
     if(!quiet) cover(false);
@@ -1242,8 +1495,7 @@ function boot(){
   flushQueue(); pqFlush();
 
   /* 조용히 이번 달 기록을 미리 받아 둡니다 —
-     '내 기록' 을 눌렀을 때 왕복 0회로 즉시 뜨고,
-     본 화면에도 '이번 달 12일 · 96.5시간' 이 채워집니다.
+     '내 기록' 을 눌렀을 때 왕복 0회로 즉시 뜨고, 본 화면에도 '이번 달 12일 · 96.5시간' 이 채워집니다.
      status 와 겹치지 않게 조금 뒤에 시작합니다. */
   setTimeout(prefetchLog, 1200);
 
@@ -1255,6 +1507,7 @@ function boot(){
     return refresh(true);
   }
 
+  paintLoading();
   return refresh(false);
 }
 
@@ -1320,11 +1573,21 @@ function applyPendingLocal(){
  *
  * ★ 누르는 순간 화면이 바뀝니다. 서버 왕복을 서서 기다리지 않습니다.
  *   보낼 것은 보류함에 적어 두고 뒤에서 보냅니다 (flushQueue).
- *   잘 들어가면 그때 '기록되었습니다' 가 뜨고,
+ *   잘 들어가면 그때 '기록되었습니다' 가 뜨고 시각 옆이 '기록됨' 으로 바뀌며,
  *   안 들어가면 화면 위에 빨간 줄로 남습니다. 조용히 사라지는 일은 없습니다.
  */
+/* ★ 연타 막기 (2.0) — 위치를 잡는 0.1~6초 사이에 한 번 더 누르면 보류함에 두 개가 들어갔습니다.
+   서버가 두 번째를 '이미 있음' 으로 막기는 하지만, 보내지도 않게 여기서 끊습니다. */
+let checking = false;
+
 async function doCheck(kind){
-  if(busy) return;
+  if(busy || checking) return;
+  checking = true;
+  try{ await doCheckOnce(kind); }
+  finally{ checking = false; }
+}
+
+async function doCheckOnce(kind){
 
   const label = kind === 'checkin' ? '출근' : '퇴근';
 
@@ -1378,39 +1641,92 @@ async function doCheck(kind){
 }
 
 /**
- * 사진을 올립니다.
- *
- * ★ 예전에는 한 번에 한 장씩만 올라갔고, **장마다 위치를 새로 잡았습니다.**
- *   세 장이면 위치를 세 번 잡느라 그만큼 더 기다렸습니다.
- *   이제 여러 장을 한 번에 고를 수 있고, 위치는 맨 앞에서 한 번만 잡습니다.
- */
-/**
  * 사진 등록.
  *
- * ★ 회색 덮개를 없앴습니다 (2026-09-02).
- *   예전에는 사진을 다 올릴 때까지 화면 전체가 막혀 있었습니다.
- *   세 장이면 손에 폰을 든 채로 10초 넘게 서 있어야 했습니다.
- *   이제는 뒤에서 올라가고, 진행 상황만 사진 칸 아래 작은 글씨로 보입니다.
- *   그 사이에 퇴근을 눌러도 됩니다.
- *
- * ★ 사진은 보류함에 넣지 않습니다.
- *   한 장이 수백 KB 라 localStorage(보통 5MB)가 금방 터집니다.
- *   그리고 사진은 출퇴근 기록과 달리 몇 분 늦어도 아무 문제가 없습니다.
- *   실패하면 그 자리에서 알리고, 사람이 다시 고르면 됩니다.
+ * ★ 회색 덮개를 없앴습니다 (2026-09-02). 뒤에서 올라가고, 그 사이에 퇴근을 눌러도 됩니다.
+ * ★ 여러 장을 한 번에 고를 수 있고, 위치는 맨 앞에서 한 번만 잡습니다.
+ * ★★ 2.0 — 고른 사진마다 '대기 → 올리는 중 → 올림 / 담아 둠 / 못 올림' 을 보여 줍니다.
+ *   '오늘 N장 올림' 은 **서버가 센 수**입니다. 화면이 미리 더하지 않습니다.
+ *   한 장이 통신 때문에 못 가면 **남은 장도 버리지 않고** 보관함에 담습니다
+ *   (예전에는 그 자리에서 멈춰서 뒤의 사진이 조용히 빠졌습니다).
+ * ★ 사진은 출퇴근 보류함(localStorage)에 넣지 않습니다 — 한 장이 수백 KB 입니다. 보관함(IndexedDB)을 씁니다.
  */
 function photoNote(text){
   $('photoNote').textContent = text || '';
   paintPending();
 }
 
+/* 고른 사진 목록 — 이번에 고른 것만 잠깐 보여 준다. 올라간 사진을 모아 보는 곳이 아니다 */
+let batchUrls = [];
+let batchTimer = null;
+const PB_TEXT = { wait:'대기', up:'올리는 중', ok:'올림', kept:'담아 둠', fail:'못 올림' };
+
+function batchStart(files){
+  clearTimeout(batchTimer);
+  batchUrls.forEach(function(u){ try{ URL.revokeObjectURL(u); }catch(err){} });
+  batchUrls = [];
+  const box = $('photoBatch');
+  box.innerHTML = files.map(function(f, i){
+    let url = '';
+    try{ if(window.Blob && f instanceof Blob){ url = URL.createObjectURL(f); batchUrls.push(url); } }catch(err){ url = ''; }
+    return '<li class="pb-item" data-st="wait" id="pb' + i + '">' +
+             (url ? '<img class="pb-thumb" src="' + url + '" alt="">' : '<span class="pb-thumb"></span>') +
+             '<span class="pb-name">사진 ' + (i + 1) + '</span>' +
+             '<span class="pb-st">' + PB_TEXT.wait + '</span>' +
+           '</li>';
+  }).join('');
+  box.hidden = false;
+}
+
+function batchMark(i, st, pqId){
+  const li = $('pb' + i);
+  if(!li) return;
+  li.dataset.st = st;
+  if(pqId) li.dataset.pq = pqId;          /* 보관함에 담긴 사진 — 나중에 다시 보내 올라가면 이 줄도 '올림' 으로 바꾼다 */
+  li.querySelector('.pb-st').textContent = PB_TEXT[st];
+}
+
+/* 보관함에서 다시 보낸 사진의 줄을 고친다 (검수 1차: 다시 보내 올라가도 '담아 둠' 이 남았다) */
+function batchPq(pqId, st){
+  const li = $('photoBatch').querySelector('[data-pq="' + pqId + '"]');
+  if(!li) return false;
+  li.dataset.st = st;
+  li.querySelector('.pb-st').textContent = PB_TEXT[st];
+  return true;
+}
+
+/* 사진 줄들의 지금 상태로 안내 한 줄을 다시 쓴다 — 고른 직후 · 다시 보낸 뒤 모두 이것 하나로.
+   다 올라갔으면 잠깐 보여 주고 접는다 (남는 것은 서버가 센 '오늘 N장 올림') */
+let batchReason = '';
+function batchSummary(){
+  const box = $('photoBatch');
+  const 수 = { ok:0, kept:0, fail:0 };
+  Array.prototype.forEach.call(box.querySelectorAll('.pb-item'), function(li){
+    if(수[li.dataset.st] !== undefined) 수[li.dataset.st]++;
+  });
+  const 끝말 = [];
+  if(수.ok) 끝말.push(수.ok + '장 올림');
+  if(수.kept) 끝말.push(수.kept + '장은 통신이 안 되어 담아 둠 — 연결되면 저절로 올라갑니다');
+  if(수.fail) 끝말.push(수.fail + '장은 올리지 못함' + (batchReason ? ' (' + batchReason + ')' : '') + ' — 다시 골라 주세요');
+  photoNote(끝말.join(' · '));
+  clearTimeout(batchTimer);
+  if(수.ok && !수.kept && !수.fail){
+    batchTimer = setTimeout(function(){ batchClose(); photoNote(''); }, 5000);
+  }
+  return 수;
+}
+
+function batchClose(){
+  $('photoBatch').hidden = true;
+  $('photoBatch').innerHTML = '';
+  batchUrls.forEach(function(u){ try{ URL.revokeObjectURL(u); }catch(err){} });
+  batchUrls = [];
+}
+
 /* ── 못 올라간 사진 보관함 (2026-09-02) ─────────────────────────
  *
- *  지금까지는 사진이 실패하면 **사람이 앨범에서 다시 골라야** 했습니다.
- *  현장에서 통신이 오락가락하면 그때마다 다시 고릅니다.
- *
  *  ★★ **출퇴근 보류함(localStorage)에는 넣을 수 없습니다.**
- *    사진 한 장이 수백 KB 라 금방 터집니다. 그래서 IndexedDB 를 씁니다 —
- *    브라우저가 큰 것을 담으라고 만들어 둔 곳입니다.
+ *    사진 한 장이 수백 KB 라 금방 터집니다. 그래서 IndexedDB 를 씁니다.
  *
  *  ★ 지켜야 하는 선은 출퇴근 보류함과 같습니다.
  *      · 조용히 버리지 않는다 — 못 보낸 것이 있으면 **빨간 줄로 계속 보인다**
@@ -1426,7 +1742,6 @@ const PQ_MAX = 10;
  * ★★ **시간 제한이 반드시 있어야 합니다** (2026-09-02).
  *   IndexedDB 는 막혀 있을 때 오류도 안 내고 **아무 답도 안 주는** 경우가 있습니다
  *   (사파리 프라이빗 · 저장공간 부족 · 헤드리스 브라우저).
- *   그러면 `await pqOpen()` 에서 **사진 올리기가 통째로 멈춥니다.**
  *   담아두기는 '있으면 좋은 것' 이고, 사진 올리기는 '되어야 하는 것' 입니다.
  */
 const PQ_TIMEOUT = 2500;
@@ -1484,8 +1799,9 @@ async function pqAll(){
   try{ return (await pqDo('readonly', function(s){ return s.getAll(); })) || []; }
   catch(e){ return []; }
 }
+/* 담았으면 true — 2.0 부터 '담아 두었습니다' 는 실제로 담긴 때만 말한다 */
 async function pqPut(item){
-  try{ await pqDo('readwrite', function(s){ s.put(item); }); }catch(e){}
+  try{ await pqDo('readwrite', function(s){ s.put(item); }); return true; }catch(e){ return false; }
 }
 async function pqDrop(id){
   try{ await pqDo('readwrite', function(s){ s.delete(id); }); }catch(e){}
@@ -1497,6 +1813,7 @@ async function pqPaint(){
   if(!box) return;
   const list = await pqAll();          /* pqAll 은 실패해도 빈 배열을 준다 */
   box.hidden = list.length === 0;
+  box.disabled = false;
   if(list.length) box.textContent = '못 올린 사진 ' + list.length + '장 · 눌러서 다시 보내기';
 }
 
@@ -1505,6 +1822,8 @@ let pqBusy = false;
 async function pqFlush(){
   if(pqBusy) return;
   pqBusy = true;
+  let 보낸것 = 0;
+  let 줄바뀜 = false;          /* 이번에 고른 사진 줄 가운데 다시 보낸 것이 있었나 */
   try{
     const 오늘 = todayKeyLocal();
     let list = await pqAll();
@@ -1514,6 +1833,10 @@ async function pqFlush(){
       if(it.day !== 오늘){ await pqDrop(it.id); }
     }
     list = (await pqAll()).sort(function(a,b){ return a.id < b.id ? -1 : 1; });
+    if(list.length && !$('photoBad').hidden){
+      $('photoBad').disabled = true;
+      $('photoBad').textContent = '못 올린 사진 ' + list.length + '장 · 보내는 중';
+    }
 
     for(const it of list){
       const res = await api({
@@ -1525,14 +1848,17 @@ async function pqFlush(){
         /* 다시 보내도 소용없는 것은 버립니다 — 아니면 영영 쌓입니다 */
         if(res && (res.code === 'NOT_REGISTERED' || res.code === 'NO_CHECKIN')){
           await pqDrop(it.id);
+          if(batchPq(it.id, 'fail')){ batchReason = res.message || batchReason; 줄바뀜 = true; }
           toast(res.message, 'bad');
           continue;
         }
         break;                        /* 통신 문제 — 다음에 다시 */
       }
       await pqDrop(it.id);
+      if(batchPq(it.id, 'ok')) 줄바뀜 = true;
+      보낸것++;
       writeSeq++;
-      state = res;
+      state = adopt(res);
       lastFetchAt = Date.now();
       applyPendingLocal();
       paint();
@@ -1543,6 +1869,8 @@ async function pqFlush(){
   }finally{
     pqBusy = false;
     await pqPaint();
+    if(줄바뀜 && !photoBusy) batchSummary();        /* '담아 둠' 안내도 지금 상태로 */
+    if(보낸것) toast('담아 둔 사진 ' + 보낸것 + '장을 올렸습니다.', 'good');
   }
 }
 
@@ -1554,28 +1882,30 @@ function todayKeyLocal(){
 }
 
 /**
- * 못 보낸 사진 한 장을 보관함에 담는다 (2026-09-02).
+ * 못 보낸 사진 한 장을 보관함에 담는다 (2026-09-02). 담았으면 true.
  *
  * ★ **조용히 버리지 않습니다.** 담고 나서 반드시 눈에 보이게 알립니다.
  * ★ 다시 보내도 소용없는 것(등록 안 됨 · 출근 안 함)은 담지 않습니다 —
  *   담아 두면 영영 빨간 줄이 남습니다.
  * ★ 저장소가 죽어 있어도 **알리기는 합니다.** 그게 사람이 알 수 있는 유일한 길입니다.
+ * quiet — 여러 장을 한꺼번에 담을 때 장마다 알리지 않고 끝에서 한 번 (2.0)
  */
-async function 사진담기(file, 준비, pos, at, i, res){
+async function 사진담기(file, 준비, pos, at, i, res, quiet){
   const 담을까 = !res || !res.code || (res.code !== 'NOT_REGISTERED' && res.code !== 'NO_CHECKIN');
   if(!담을까){
-    toast((res && res.message) || '사진을 등록하지 못했습니다.', 'bad');
-    return;
+    if(!quiet) toast((res && res.message) || '사진을 등록하지 못했습니다.', 'bad');
+    return false;
   }
 
   const 남은장수 = (await pqAll()).length;
   if(남은장수 >= PQ_MAX){
     toast('못 올린 사진이 너무 많습니다. 통신을 확인해 주세요.', 'bad');
-    return;
+    return false;
   }
 
-  await pqPut({
-    id: Date.now() + '-' + i,
+  const 담을id = Date.now() + '-' + i;
+  const 담았다 = await pqPut({
+    id: 담을id,
     day: todayKeyLocal(), at: at,
     name: (준비 && 준비.name) || (file && file.name) || '현장사진.jpg',
     data: 준비 && 준비.data,
@@ -1584,7 +1914,11 @@ async function 사진담기(file, 준비, pos, at, i, res){
     lat: pos.lat, lng: pos.lng, acc: pos.acc
   });
   await pqPaint();
-  toast('통신이 안 되어 담아 두었습니다. 붙으면 저절로 올라갑니다.', 'bad');
+  if(!quiet){
+    toast(담았다 ? '통신이 안 되어 담아 두었습니다. 붙으면 저절로 올라갑니다.'
+                 : '사진을 올리지도 담지도 못했습니다. 다시 골라 주세요.', 'bad');
+  }
+  return 담았다 ? 담을id : '';
 }
 
 async function doPhoto(files){
@@ -1595,68 +1929,87 @@ async function doPhoto(files){
   if(pos === null){ $('filePhoto').value = ''; return; }
 
   photoBusy = true;
-  let done = 0;
-  let 못보낸것 = null;
+  let done = 0, 담음 = 0, 못함 = 0;
+  let 끊김 = null;            /* 앞 장이 못 갔다 — { res } (통신이면 res 가 null) */
+  let 이유 = '';
 
+  batchStart(list);
   photoNote(list.length > 1 ? ('사진 ' + list.length + '장을 올리는 중입니다') : '사진을 올리는 중입니다');
 
   try{
     for(let i = 0; i < list.length; i++){
+      batchMark(i, 'up');
       if(list.length > 1) photoNote('사진 ' + (i + 1) + ' / ' + list.length + ' 올리는 중입니다');
-
-      const 준비 = await shrink(list[i]);
 
       /* ★ 찍은 시각은 **epoch 밀리초**입니다 — 출퇴근의 `at` 과 같은 모양이라
          서버의 `pressedAt_` 가 그대로 검사합니다 (미래 거부 · 90분 초과 거부 · 다른 날 거부). */
       const 찍은시각 = Date.now();
-      /* 통신이 끊겨 예외가 나면 catch 에서 이걸 담습니다 */
-      못보낸것 = { file: list[i], 준비: 준비, pos: pos, at: 찍은시각, i: i };
-      const res = await api({
-        action:'photo',
-        fileName: 준비.name || list[i].name || '현장사진.jpg',
-        /* ★ 형식을 그대로 보냅니다. 5MB 이하는 원본이라 PNG·WebP 일 수 있습니다.
-           예전에는 무조건 image/jpeg 이라고 적어 보내서, 서버가 PNG 를
-           .jpg 로 저장했습니다 (이름과 속이 어긋납니다). */
-        mimeType: 준비.mime || 'image/jpeg',
-        data: 준비.data,
-        lat: pos.lat, lng: pos.lng, acc: pos.acc,
-        at: 찍은시각
-      });
-
-      if(!res || !res.ok){
-        await 사진담기(list[i], 준비, pos, 찍은시각, i, res);
-        break;
+      let 준비 = null;
+      try{
+        준비 = await shrink(list[i]);
+      }catch(err){
+        /* 그림을 못 읽었다 — 담을 것도 없다. 그 장만 '못 올림' 으로 남기고 다음 장으로 */
+        batchMark(i, 'fail'); 못함++; 이유 = err.message || 이유;
+        continue;
       }
 
-      못보낸것 = null;                 /* 잘 갔으니 지운다 */
+      if(끊김){
+        /* 앞 장이 통신 때문에 못 갔다 — 남은 장은 보내 보지 않고 바로 담는다 (붙으면 저절로 올라간다) */
+        const 담겼나 = await 사진담기(list[i], 준비, pos, 찍은시각, i, 끊김.res, true);
+        batchMark(i, 담겼나 ? 'kept' : 'fail', 담겼나);
+        if(담겼나) 담음++; else 못함++;
+        continue;
+      }
+
+      let res = null;
+      try{
+        res = await api({
+          action:'photo',
+          fileName: 준비.name || list[i].name || '현장사진.jpg',
+          /* ★ 형식을 그대로 보냅니다. 5MB 이하는 원본이라 PNG·WebP 일 수 있습니다. */
+          mimeType: 준비.mime || 'image/jpeg',
+          data: 준비.data,
+          lat: pos.lat, lng: pos.lng, acc: pos.acc,
+          at: 찍은시각
+        });
+      }catch(err){
+        /* ★★ **가장 흔한 실패가 여기로 옵니다** (2026-09-02).
+           `fetch` 가 통신이 끊겨 던집니다. 예전에는 이 자리에서 사진을 버렸습니다 — 담습니다. */
+        res = null;
+      }
+
+      if(!res || !res.ok){
+        const 담겼나 = await 사진담기(list[i], 준비, pos, 찍은시각, i, res, true);
+        batchMark(i, 담겼나 ? 'kept' : 'fail', 담겼나);
+        if(담겼나) 담음++; else 못함++;
+        if(res && res.message) 이유 = res.message;
+        끊김 = { res: res };
+        continue;
+      }
+
       writeSeq++;
-      state = res;
+      state = adopt(res);
       done++;
       lastFetchAt = Date.now();
       applyPendingLocal();     /* 아직 못 보낸 출퇴근이 있으면 다시 얹는다 */
       paint();
       saveSnap();
-    }
-
-    if(done){
-      toast(done > 1 ? ('사진 ' + done + '장이 등록되었습니다.') : '사진이 등록되었습니다.', 'good');
-    }
-  }catch(err){
-    /* ★★ **가장 흔한 실패가 여기로 옵니다** (2026-09-02).
-       `fetch` 가 통신이 끊겨 던지면 위의 `if(!res.ok)` 에는 아예 안 닿습니다.
-       예전에는 이 자리에서 그냥 알리기만 하고 **사진을 버렸습니다.**
-       시험(⑩)이 이것을 잡았습니다. */
-    if(못보낸것){
-      await 사진담기(못보낸것.file, 못보낸것.준비, 못보낸것.pos, 못보낸것.at, 못보낸것.i, null);
-    }else{
-      toast(done
-        ? ('사진 ' + done + '장만 올라갔습니다. 나머지는 다시 시도해 주세요.')
-        : '사진을 등록하지 못했습니다. 다시 시도해 주세요.', 'bad');
+      batchMark(i, 'ok');
     }
   }finally{
     photoBusy = false;
-    photoNote('');
     $('filePhoto').value = '';
+
+    batchReason = 이유;
+    batchSummary();
+
+    if(done && !담음 && !못함){
+      toast(done > 1 ? ('사진 ' + done + '장이 등록되었습니다.') : '사진이 등록되었습니다.', 'good');
+    }else if(담음 || 못함){
+      toast(담음 ? '일부 사진을 담아 두었습니다. 연결되면 저절로 올라갑니다.' : '올리지 못한 사진이 있습니다.', 'bad');
+    }else{
+      batchClose(); photoNote('');
+    }
   }
 }
 
@@ -1872,11 +2225,21 @@ function shrink(file){
   ]);
 }
 
-/* ---------- 내 기록 (v55) ----------
+/* ---------- 내 기록 (v55 · 2.0 새 배치) ----------
  * 서버 왕복은 달을 넘길 때마다 1회. 받아온 달은 담아두어 다시 묻지 않는다.
+ * ★ 시간 계산 · 휴일 표시 · '퇴근 기록 없음' 은 서버가 준 값 그대로입니다. 지각 · 이상 근무를 화면이 판정하지 않습니다.
  */
 let logYm = null;
 const logCache = {};
+
+const EMPTY_ART =
+  '<svg class="art" viewBox="0 0 84 66" aria-hidden="true">' +
+    '<rect class="e-card" x="16" y="12" width="52" height="46" rx="8"/>' +
+    '<path class="e-top" d="M17 20a7 7 0 0 1 7-7h36a7 7 0 0 1 7 7v6H17z"/>' +
+    '<path class="e-ring" d="M30 7v10M54 7v10"/>' +
+    '<circle class="e-dot" cx="30" cy="36" r="3"/><circle class="e-dot" cx="42" cy="36" r="3"/><circle class="e-dot on" cx="54" cy="36" r="3"/>' +
+    '<circle class="e-dot" cx="30" cy="47" r="3"/><circle class="e-dot" cx="42" cy="47" r="3"/>' +
+  '</svg>';
 
 function ymShift(ym, n){
   const y = Number(ym.slice(0,4)), m = Number(ym.slice(5,7)) + n;
@@ -1891,7 +2254,7 @@ function dayName(key){
 }
 
 /* ★ 이번 달 기록을 뒤에서 미리 받아 둡니다 (2026-09-02).
-     · '내 기록 보기' 를 누르면 왕복 0회로 즉시 뜹니다
+     · '내 기록' 을 누르면 왕복 0회로 즉시 뜹니다
      · 본 화면의 '내 기록' 칸에 `이번 달 12일 · 96.5시간` 이 채워집니다
    실패해도 아무 말 하지 않습니다 — 누르면 그때 다시 받습니다. */
 function prefetchLog(){
@@ -1928,17 +2291,26 @@ async function openLog(ym){
   paintLog(logCache[logYm] || null);
 
   if(!logCache[logYm]){
+    const asked = logYm;
     try{
-      const res = await api({ action:'mylog', ym: logYm });
+      const res = await api({ action:'mylog', ym: asked });
       if(res.ok){
-        logCache[logYm] = res;
-        paintLog(res);
+        logCache[asked] = res;
         /* 본 화면의 요약은 '이번 달' 것일 때만 바꾼다 */
-        if(logYm === todayKey().slice(0,7)) paintLogHint(res);
+        if(asked === todayKey().slice(0,7)) paintLogHint(res);
+        if(asked === logYm) paintLog(res);        /* 그사이 다른 달로 넘겼으면 그리지 않는다 */
       }
-      else toast(res.message || '기록을 불러오지 못했습니다.', 'bad');
-    }catch(err){ toast(err.message, 'bad'); }
+      else if(asked === logYm) paintLogFail(res.message || '기록을 불러오지 못했습니다.');
+    }catch(err){ if(asked === logYm) paintLogFail(err.message); }
   }
+}
+
+function paintLogFail(msg){
+  $('logRows').innerHTML =
+    '<div class="log-empty">' + EMPTY_ART +
+      '<p class="logempty">' + esc(msg || '기록을 불러오지 못했습니다.') + '</p>' +
+      '<button type="button" class="btn line" data-log-retry>다시 불러오기</button>' +
+    '</div>';
 }
 
 function paintLog(data){
@@ -1947,44 +2319,57 @@ function paintLog(data){
   $('logNext').disabled = (logYm >= todayKey().slice(0,7));
 
   if(!data){
-    $('logDays').textContent = '-';
-    $('logHours').textContent = '-';
-    $('logSites').textContent = '';
-    $('logRows').innerHTML = '<p class="logempty">불러오는 중입니다</p>';
+    $('logDays').textContent = '';
+    $('logHours').textContent = '';
+    $('logSites').innerHTML = '';
+    $('logRows').innerHTML = '<div class="log-empty"><p class="logempty">불러오는 중입니다</p></div>';
     return;
   }
 
   $('logDays').textContent = data.workDays;
   $('logHours').textContent = data.hours;
 
-  /* 현장별로 며칠 나갔는지 — 한 줄로 */
-  $('logSites').textContent = (data.bySite || [])
-    .map(function(x){ return x.site + ' ' + x.days + '일'; }).join(' · ');
+  /* 현장별로 며칠 나갔는지 — 많은 곳부터 세 곳, 나머지는 '그 밖 N곳' 한 줄 */
+  const 현장별 = data.bySite || [];
+  $('logSites').innerHTML = 현장별.slice(0, 3).map(function(x){
+    return '<li title="' + esc(x.site) + '"><span class="ls-name">' + esc(siteSplit(x.site).main) + '</span><b>' + esc(x.days) + '일</b></li>';
+  }).join('') + (현장별.length > 3
+    ? '<li><span class="ls-name">그 밖 ' + (현장별.length - 3) + '곳</span><b>' +
+        현장별.slice(3).reduce(function(n, x){ return n + (Number(x.days) || 0); }, 0) + '일</b></li>'
+    : '');
 
   if(!data.days.length){
-    $('logRows').innerHTML = '<p class="logempty">이 달에는 기록이 없습니다</p>';
+    $('logRows').innerHTML = '<div class="log-empty">' + EMPTY_ART + '<p class="logempty">이 달에는 기록이 없습니다</p></div>';
     return;
   }
 
-  $('logRows').innerHTML = data.days.map(function(r){
+  const 오늘 = todayKey();
+  $('logRows').innerHTML = '<ul class="lr-list">' + data.days.map(function(r){
     const d = dayName(r.date);
-    const time = r.inTime + (r.outTime ? (' → ' + r.outTime) : ' → 퇴근 안 찍음');
+    const 주말 = (d === '일' || d === '토');
     const hrs = r.minutes ? (Math.round(r.minutes / 6) / 10 + '시간') : '';
-    return '<div class="logrow' + ((d === '일' || d === '토') ? ' holiday' : '') + '">' +
-             '<span class="d">' + r.date.slice(5) + ' (' + d + ')</span>' +
-             '<span class="t">' + time + '</span>' +
-             '<span class="h">' + hrs + '</span>' +
-             '<span class="s">' + (r.site || '') + '</span>' +
-           '</div>';
-  }).join('');
+    return '<li class="lr' + (주말 ? ' holiday' : '') + (r.date === 오늘 ? ' today' : '') + '">' +
+             '<span class="lr-date"><b>' + Number(r.date.slice(8)) + '</b><small>' + d + '</small></span>' +
+             '<span class="lr-main">' +
+               '<span class="lr-time">' + esc(r.inTime) + ' → ' +
+                 (r.outTime ? esc(r.outTime) : '<em class="lr-miss">퇴근 기록 없음</em>') + '</span>' +
+               '<span class="lr-site">' + siteHTML(r.site || '') + '</span>' +
+             '</span>' +
+             '<span class="lr-hrs">' + hrs + '</span>' +
+           '</li>';
+  }).join('') + '</ul>';
 }
+
+function backFromLog(){ if(!popLayer('log')) show('viewApp'); }
 
 $('btnUndo').addEventListener('click', doUndo);
 $('photoBad').addEventListener('click', pqFlush);
-$('btnLog').addEventListener('click', () => openLog(null));
-$('logBackTop').addEventListener('click', () => $('logBack').click());
+$('btnLog').addEventListener('click', () => { openLog(null); pushLayer('log'); });
+$('logBackTop').addEventListener('click', backFromLog);
+$('logBack').addEventListener('click', backFromLog);
+$('logRows').addEventListener('click', (e) => { if(e.target.closest('[data-log-retry]')) openLog(logYm); });
 
-/* 설치 안내는 손에 든 폰에 맞는 한 줄만 (2026-09-09) */
+/* 설치 안내는 손에 든 폰에 맞는 순서만 (2026-09-09) */
 (function gateFit(){
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
   const a = $('gateAndroid'), i = $('gateIos'), o = $('gateOther');
@@ -1993,7 +2378,6 @@ $('logBackTop').addEventListener('click', () => $('logBack').click());
   hide.hidden = true;
   o.innerHTML = hide.innerHTML;
 })();
-$('logBack').addEventListener('click', () => show('viewApp'));
 $('logPrev').addEventListener('click', () => openLog(ymShift(logYm, -1)));
 $('logNext').addEventListener('click', () => { if(logYm < todayKey().slice(0,7)) openLog(ymShift(logYm, 1)); });
 
@@ -2015,33 +2399,76 @@ $('btnOut').addEventListener('click', () => doCheck('checkout'));
 $('btnPhoto').addEventListener('click', () => $('filePhoto').click());
 $('filePhoto').addEventListener('change', (e) => doPhoto(e.target.files));
 $('btnReload').addEventListener('click', () => { dropLogCache(); refresh(false); });
+$('btnRetryLoad').addEventListener('click', () => { paintLoading(); refresh(false); });
+$('btnTheme').addEventListener('click', nextTheme);
 
+/* 현장 고르기 — 고르면 바로 닫힌다. 확인창을 더하지 않는다 (출근 때 한 번 묻는 것으로 충분) */
+$('siteBtn').addEventListener('click', openSitePanel);
+$('sitePanelClose').addEventListener('click', () => closeSitePanel());
+$('sitePanel').addEventListener('click', (e) => { if(e.target === $('sitePanel')) closeSitePanel(); });
+$('siteSearch').addEventListener('input', (e) => paintSiteList(e.target.value));
+$('siteList').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-site]');
+  if(!b || !state || state.siteLocked) return;
+  pickedSite = b.getAttribute('data-site');
+  paintSites();
+  closeSitePanel();
+});
+/* 판이 열린 동안 키보드 초점은 판 안에서만 돈다 (검수 1차 권장: Shift+Tab 으로 뒤의 '내 기록' 에 갔다) */
+document.addEventListener('keydown', (e) => {
+  const 판 = $('sitePanel');
+  if(판.hidden) return;
+  if(e.key === 'Escape'){ closeSitePanel(); return; }
+  if(e.key !== 'Tab') return;
+  const 칸 = Array.prototype.filter.call(판.querySelectorAll('button, input'), function(el){
+    return !el.disabled && el.getClientRects().length > 0;
+  });
+  if(!칸.length) return;
+  const 첫 = 칸[0], 끝 = 칸[칸.length - 1], 지금 = document.activeElement;
+  if(e.shiftKey && (지금 === 첫 || !판.contains(지금))){ e.preventDefault(); 끝.focus(); }
+  else if(!e.shiftKey && (지금 === 끝 || !판.contains(지금))){ e.preventDefault(); 첫.focus(); }
+});
+window.addEventListener('popstate', () => {
+  if(!$('sitePanel').hidden){ closeSitePanel(true); return; }
+  if($('viewLog').classList.contains('on')) show('viewApp');
+});
 
 /* 못 보낸 것을 손으로 다시 보내기 */
 $('pendingRetry').addEventListener('click', () => {
   queueSave(queueLoad().map(function(one){ one.tries = 0; return one; }));
   paintPending();
-  flushQueue(); pqFlush();
+  flushNow();
 });
 
 /* 앱으로 되돌아왔을 때.
-   ★ 예전에는 돌아올 때마다 서버에 물었습니다 (2026-09-02).
-     카톡 한 번 확인하고 돌아와도 왕복 1회를 썼습니다. 화면은 이미 맞는 값을
-     그리고 있는데도요. 이제 마지막으로 받아온 지 60초가 안 됐으면 건너뜁니다.
+   ★ 마지막으로 받아온 지 60초가 안 됐으면 서버에 묻지 않습니다 (2026-09-02).
      보류함은 그것과 상관없이 언제나 먼저 밀어냅니다. */
 const REFRESH_MIN_GAP = 60000;
 
 document.addEventListener('visibilitychange', () => {
   if(document.hidden || busy) return;
   warmPosition();                                  // 돌아오면 위치부터 미리 잡는다
-  flushQueue(); pqFlush();                                    // 못 보낸 출퇴근이 먼저다
+  checkDay();                                      // 자정을 넘겼으면 오늘 것으로
+  flushNow();                                      // 못 보낸 출퇴근이 먼저다
   if(state && state.registered && (Date.now() - lastFetchAt) > REFRESH_MIN_GAP) refresh(true);
 });
 
+/* 켜 둔 채로 있을 때 — 30초마다 날짜가 바뀌었는지, 되돌리기 5분이 지났는지만 본다 (서버에 묻지 않는다) */
+setInterval(() => {
+  if(document.hidden) return;
+  checkDay();
+  if(state && state.registered) paintUndo(state);
+}, 30000);
+
 /* 통신이 다시 붙는 순간을 브라우저가 알려준다 — 그때 바로 밀어낸다 */
-window.addEventListener('online', () => { flushQueue(); pqFlush(); });
+window.addEventListener('online', flushNow);
 /* 앱을 처음 열 때 못 올린 사진이 있으면 그 자리에서 보여 준다 */
 pqPaint();
+
+applyTheme(themeNow());
+try{
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => applyTheme(themeNow()));
+}catch(err){ /* 오래된 브라우저 — 다음에 열 때 맞는다 */ }
 
 /* ---------- 실행 조건 ---------- */
 function isStandalone(){
@@ -2058,15 +2485,20 @@ if('serviceWorker' in navigator){
   });
 
   /* 서비스워커가 뒤에서 새 화면을 받아 두면 알려 준다.
-     ★ 쓰는 중에 화면을 강제로 새로고침하지 않습니다 —
-       출근을 누르는 순간에 화면이 갈아끼워지면 안 됩니다.
-       알리기만 하고, 다음에 앱을 열면 새 것으로 뜹니다. */
+     ★ 쓰는 중에 화면을 강제로 새로고침하지 않습니다 — 출근을 누르는 순간에 화면이 갈아끼워지면 안 됩니다.
+     위에 한 줄로 알리고, [지금 적용] 은 사람이 누를 때만. 안 누르면 다음에 열 때 새 것으로 뜹니다.
+     ★ 못 보낸 출퇴근 · 담아 둔 사진은 폰에 남아 있어 새로 열어도 그대로 이어서 보냅니다. */
   navigator.serviceWorker.addEventListener('message', (e) => {
     if(e && e.data && e.data.type === 'newversion'){
-      toast('새 버전이 준비되었습니다. 다음에 열면 적용됩니다.', 'good');
+      $('updateBar').hidden = false;
     }
   });
 }
+
+$('btnUpdate').addEventListener('click', () => {
+  if(photoBusy){ toast('사진을 다 올린 뒤에 적용해 주세요.', 'bad'); return; }
+  location.reload();
+});
 
 if(isStandalone()){
   show('viewApp');
