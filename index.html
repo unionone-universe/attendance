@@ -643,7 +643,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzTybR0LIssoSKflPmkdDhV
 /* ★ 판 번호 — 화면을 고쳐 올릴 때마다 0.01 씩 올리세요.
    본 화면 맨 아래에 그대로 나옵니다. 새 것이 올라갔는지 눈으로 확인하는 자리입니다.
    (견적 앱의 APP_VERSION 과 같은 역할입니다) */
-const APP_VERSION = '2.00';
+const APP_VERSION = '2.01';
 
 /* 기기 식별값을 담는 이름. 한 번 정하면 절대 바꾸지 말 것 — 바꾸면 모든 폰을 다시 등록해야 합니다. */
 const DEVICE_TOKEN_KEY = 'uo_attendance_launcher_device_v1';
@@ -1042,40 +1042,21 @@ function siteHTML(name){
   return esc(p.main) + (p.date ? '<span class="sn-sub">' + p.date + '</span>' : '');
 }
 
+function siteKey(one){return one.folderId?'folder:'+one.folderId:'name:'+one.name;}
+function siteVisible(one){return one.common&&one.common.state==='linked'?one.common.name:one.name;}
+function selectedSite(){return siteList().filter(function(one){return siteKey(one)===$('selSite').value;})[0]||null;}
 function paintSites(){
-  const sel = $('selSite');
-  const list = siteList();
-  if(state.siteLocked) pickedSite = '';
-
-  const want = state.siteLocked
-    ? (state.siteName || '사무실')
-    : (pickedSite || state.siteName || '사무실');
-
-  sel.innerHTML = '';
-  list.forEach(function(one){
-    const opt = document.createElement('option');
-    opt.value = one.name;
-    opt.textContent = one.name;
-    if(one.name === want) opt.selected = true;
-    sel.appendChild(opt);
-  });
-
-  /* 목록에 없는 현장이 저장돼 있으면 (완료된 현장 등) 그것도 보여준다 */
-  if(want && !list.some(function(o){ return o.name === want; })){
-    const opt = document.createElement('option');
-    opt.value = want;
-    opt.textContent = want;
-    opt.selected = true;
-    sel.appendChild(opt);
-  }
-
-  sel.disabled = !!state.siteLocked;
-
-  $('siteName').innerHTML = siteHTML(want);
-  $('siteLabel').textContent = state.siteLocked ? '오늘 현장' : '출근할 현장';
-  $('siteLock').hidden = !state.siteLocked;
-  $('siteBtn').hidden = !!state.siteLocked;
-  $('siteBtn').disabled = false;
+  const sel=$('selSite'),list=siteList();if(state.siteLocked)pickedSite='';
+  const desired=state.siteId?'folder:'+state.siteId:'name:'+(state.siteName||'사무실');
+  const want=pickedSite||desired;
+  sel.innerHTML='';list.forEach(function(one){const opt=document.createElement('option');opt.value=siteKey(one);opt.textContent=siteVisible(one);opt.selected=opt.value===want;sel.appendChild(opt);});
+  let one=list.filter(function(x){return siteKey(x)===want;})[0];
+  if(!one&&state.siteLocked){one={name:state.siteName||'사무실',folderId:state.siteId||''};const opt=document.createElement('option');opt.value=siteKey(one);opt.textContent=one.name;opt.selected=true;sel.appendChild(opt);}
+  if(!one&&!state.siteLocked){sel.selectedIndex=-1;}
+  sel.disabled=!!state.siteLocked;
+  $('siteName').innerHTML=one?siteHTML(siteVisible(one)):'현장을 선택해주세요';
+  $('siteLabel').textContent=state.siteLocked?'오늘 현장':'출근할 현장';
+  $('siteLock').hidden=!state.siteLocked;$('siteBtn').hidden=!!state.siteLocked;$('siteBtn').disabled=false;
 }
 
 /* ★ 최근 현장은 **실제로 출근이 기록된 곳만** (2.0).
@@ -1099,31 +1080,12 @@ function rememberSite(name){
 function 이름맞춤(s){ return String(s || '').replace(/\s+/g, '').toLowerCase(); }
 
 function paintSiteList(q){
-  const names = siteList().map(function(o){ return o.name; });
-  const cur = $('selSite').value;
-  const 찾기 = 이름맞춤(q);
-  const CHECK = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-
-  function 묶음(title, arr){
-    return '<p class="site-group">' + esc(title) + '</p>' + arr.map(function(n){
-      return '<button type="button" class="site-opt' + (n === cur ? ' on' : '') + '" data-site="' + esc(n) + '"' +
-             (n === cur ? ' aria-current="true"' : '') + '>' +
-             '<span class="so-name">' + siteHTML(n) + '</span>' + (n === cur ? CHECK : '') + '</button>';
-    }).join('');
-  }
-
-  let html = '';
-  if(!찾기){
-    const recent = [state && state.siteName].concat(recentSites()).filter(function(n, i, a){
-      return n && a.indexOf(n) === i && names.indexOf(n) >= 0 && n !== '사무실' && n !== '기타현장';
-    }).slice(0, 3);
-    if(recent.length) html += 묶음('최근 출근한 현장', recent);
-    html += 묶음('전체 ' + names.length + '곳', names);
-  }else{
-    const hit = names.filter(function(n){ return 이름맞춤(n).indexOf(찾기) >= 0; });
-    html = hit.length ? 묶음('찾은 현장 ' + hit.length + '곳', hit) : '<p class="site-none">맞는 현장이 없습니다. 이름 일부만 넣어 보세요.</p>';
-  }
-  $('siteList').innerHTML = html;
+  const list=siteList(),cur=$('selSite').value,query=이름맞춤(q);
+  function group(title,items){return '<p class="site-group">'+esc(title)+'</p>'+items.map(function(one){const key=siteKey(one),common=one.common&&one.common.state==='linked';return '<button type="button" class="site-opt'+(key===cur?' on':'')+'" data-site="'+esc(key)+'"'+(key===cur?' aria-current="true"':'')+'><span class="so-name">'+siteHTML(siteVisible(one))+(common?'<span class="sn-sub">'+esc(one.common.address)+'</span>':'')+'</span>'+(key===cur?'<span aria-hidden="true">✓</span>':'')+'</button>';}).join('');}
+  let html='';
+  if(query){const hit=list.filter(function(one){return 이름맞춤(one.name+' '+siteVisible(one)+' '+(one.common&&one.common.address||'')).includes(query);});html=hit.length?group('찾은 현장 '+hit.length+'곳',hit):'<p class="site-none">맞는 현장이 없습니다. 다른 이름이나 주소로 찾아보세요.</p>';}
+  else {const recent=[state&&state.siteName].concat(recentSites());const items=list.filter(function(x){return x.folderId&&recent.includes(x.name);}).slice(0,3);if(items.length)html+=group('최근 출근한 현장',items);html+=group('전체 '+list.length+'곳',list);}
+  $('siteList').innerHTML=html;
 }
 
 function openSitePanel(){
@@ -1359,7 +1321,8 @@ async function flushQueue(){
         res = await api({
           action: item.action,
           at: item.at,
-          siteName: item.siteName || '',
+          siteName: item.siteName || '', siteId:item.siteId || '',
+          commonSiteId:item.commonSiteId || '', commonVersion:item.commonVersion || '',
           lat: item.lat, lng: item.lng, acc: item.acc
         });
       }catch(err){ res = null; }
@@ -1385,6 +1348,10 @@ async function flushQueue(){
         continue;
       }
 
+      if(res && res.code === 'SITE_CHANGED'){
+        queueDrop(item.id);pickedSite='';toast(res.message || '현장을 다시 선택해주세요.','bad');await refresh(true);openSitePanel();break;
+      }
+
       /* ③ 기기 등록이 풀렸다 */
       if(res && res.code === 'NOT_REGISTERED'){
         queueDrop(item.id);
@@ -1408,7 +1375,7 @@ async function flushQueue(){
            · code 'BUSY'        남이 같은 순간에 누르고 있다 (서버 잠금)
            · 그 밖의 실패        서버가 알 수 없는 이유로 실패했다
          ★ 어느 쪽이든 **버리지 않습니다.** 다시 보냅니다. */
-      const 다시보낼것 = !res || res.code === 'BUSY' || !res.code;
+      const 다시보낼것 = !res || res.code === 'BUSY' || res.code === 'SITE_UNAVAILABLE' || !res.code;
       if (!다시보낼것){
         /* 여기 오면 우리가 모르는 code 입니다. 조용히 버리지 않고 알립니다. */
         queueDrop(item.id);
@@ -1604,7 +1571,9 @@ async function doCheckOnce(kind){
     return;
   }
 
-  const siteName = (kind === 'checkin') ? $('selSite').value : '';
+  const choice=kind==='checkin'?selectedSite():null;
+  if(kind==='checkin'&&!choice){toast('출근할 현장을 선택해주세요.','bad');openSitePanel();return;}
+  const siteName=choice?choice.name:'';
 
   /* ★ 물어보는 동안 위치를 미리 잡습니다.
      사람이 '확인' 을 누르는 2~3초가 그냥 흘러가고 있었습니다. */
@@ -1626,7 +1595,9 @@ async function doCheckOnce(kind){
     id: 'q' + at + '-' + Math.random().toString(36).slice(2, 6),
     action: kind,
     at: at,
-    siteName: siteName,
+    siteName: siteName, siteId:choice?choice.folderId:'',
+    commonSiteId:choice&&choice.common&&choice.common.state==='linked'?choice.common.siteId:'',
+    commonVersion:choice&&choice.common&&choice.common.state==='linked'?choice.common.version:'',
     lat: pos.lat, lng: pos.lng, acc: pos.acc,
     tries: 0
   });
