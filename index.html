@@ -643,7 +643,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzTybR0LIssoSKflPmkdDhV
 /* ★ 판 번호 — 화면을 고쳐 올릴 때마다 0.01 씩 올리세요.
    본 화면 맨 아래에 그대로 나옵니다. 새 것이 올라갔는지 눈으로 확인하는 자리입니다.
    (견적 앱의 APP_VERSION 과 같은 역할입니다) */
-const APP_VERSION = '2.01';
+const APP_VERSION = '2.02';
 
 /* 기기 식별값을 담는 이름. 한 번 정하면 절대 바꾸지 말 것 — 바꾸면 모든 폰을 다시 등록해야 합니다. */
 const DEVICE_TOKEN_KEY = 'uo_attendance_launcher_device_v1';
@@ -761,13 +761,25 @@ async function doUndo(){
   if(!what) return;
   if(!confirm(what === 'out' ? '방금 찍은 퇴근을 취소할까요?' : '방금 찍은 출근을 취소할까요?')) return;
 
+  /* ★ 누르는 순간 화면에서 먼저 지운다 (2026-10-26) — 예전에는 서버 답을 두 번(취소 → 다시 받기) 기다렸다.
+     안 되면 서버 값으로 되돌린다. 그 전에 출발한 조회의 답이 지운 시각을 되살리지 않게 writeSeq 를 올린다 */
+  const back = state ? JSON.parse(JSON.stringify(state)) : null;
+  writeSeq++;
+  if(state){
+    if(what === 'out'){ state.outTime = ''; if(state.inTime) state.status = '근무중'; }
+    else{ state.inTime = ''; state.status = '미출근'; state.siteLocked = false; }
+    paint(); saveSnap();
+  }
   b.disabled = true;
+  toast(what === 'out' ? '퇴근 취소를 보내는 중입니다.' : '출근 취소를 보내는 중입니다.');
   let res = null;
   try{ res = await api({ action:"undo", what: what }); }
   catch(err){ res = null; }
   b.disabled = false;
 
   if(!res || !res.ok){
+    /* 안 됐다 — 누르기 전 화면으로 되돌리고 서버 값으로 맞춘다 */
+    if(back && state && state.date === back.date){ state = back; paint(); saveSnap(); }
     /* ★★ 문구가 아니라 code 로 가려냅니다 (규칙 그대로).
        되돌리기는 **다시 보내도 소용없는 것들**뿐이라 전부 그 자리에서 끝냅니다. */
     const c = res && res.code;
@@ -781,8 +793,9 @@ async function doUndo(){
     toast((res && res.message) || '취소하지 못했습니다. 인터넷 연결을 확인해 주세요.', 'bad');
     return;
   }
-  toast(res.message || '취소했습니다.');
-  await refresh(true);
+  toast(res.message || '취소했습니다.', 'good');
+  dropLogCache();
+  refresh(true);                    /* 뒤에서 맞춘다 — 기다리지 않는다 */
 }
 
 function show(id){
@@ -1144,6 +1157,7 @@ const SNAP_KEY = 'uo_attendance_snap_v1';
    버튼이 다시 살아나고, 사람이 또 누르게 됩니다.
    그래서 상태를 바꾼 횟수를 세어, 보내둔 사이에 바뀌었으면 결과를 버립니다. */
 let writeSeq = 0;
+let fetchOk = 0;      /* 서버에서 상태를 받은 횟수 — 새로고침이 실제로 받았는지 본다 (2026-10-26) */
 
 /* 서울은 서머타임이 없어 언제나 UTC+9 입니다.
    기기 시계가 다른 시간대로 맞춰져 있어도 같은 날짜가 나옵니다. */
@@ -1174,10 +1188,29 @@ function loadSnap(){
     if(!raw) return null;
     const snap = JSON.parse(raw);
     if(!snap || !snap.registered) return null;
-    if(snap.date !== todayKey()) return null;   /* 날이 바뀌었으면 쓰지 않는다 */
+    /* ★ 날이 바뀌었으면 (2026-10-26) — 예전에는 버리고 '불러오는 중' 덮개 아래에서 출근 단추를 잠갔다(매일 아침 2~3초).
+       이제 7일 안의 화면이면 이름 · 현장 목록 · 마지막 현장만 이어받고 오늘 기록은 비운 채 바로 그린다.
+       출근을 누르면 보류함으로 보내고, 이미 찍혀 있었다면 서버가 ALREADY_IN 으로 알려 맞춘다 */
+    if(snap.date !== todayKey()) return carryDay(snap);
     snap.__snap = true;                          /* 아직 확인 전이라는 표시 */
     return snap;
   }catch(err){ return null; }
+}
+const CARRY_DAYS = 7;
+function dayNo(key){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(key || ''));
+  return m ? Math.floor(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) / 86400000) : NaN;
+}
+/** 지난 날의 화면에서 오늘 화면을 만든다 — 오늘 기록(출퇴근 시각 · 사진 · 휴가)은 지어내지 않고 비운다 */
+function carryDay(s){
+  const gap = dayNo(todayKey()) - dayNo(s && s.date);
+  if(!s || !s.registered || !(gap > 0 && gap <= CARRY_DAYS) || !Array.isArray(s.sites) || !s.sites.length) return null;
+  return {
+    ok: true, registered: true, name: s.name || '', phone: s.phone || '',
+    date: todayKey(), inTime: '', outTime: '', status: '미출근', leave: '', photos: 0,
+    sites: s.sites, siteName: s.siteName || '', siteId: s.siteId || '', siteLocked: false,
+    __snap: true, __carry: true
+  };
 }
 
 /* ★ 자정을 넘겨 열어 둔 화면 (2.0) — 어제 상태로 오늘 출퇴근을 누르지 않게
@@ -1185,9 +1218,18 @@ function loadSnap(){
 function checkDay(){
   if(!state || !state.registered || !state.date) return;
   if(state.date === todayKey()) return;
-  state = null;
-  try{ localStorage.removeItem(SNAP_KEY); }catch(err){}
-  paintLoading();
+  /* ★ (2026-10-26) 화면을 비우고 단추를 잠그지 않는다 — 이름 · 현장만 이어받은 오늘 화면으로 바로 바꾸고 뒤에서 묻는다 */
+  const next = carryDay(state);
+  if(!next){
+    state = null;
+    try{ localStorage.removeItem(SNAP_KEY); }catch(err){}
+    paintLoading();
+    refresh(true);
+    return;
+  }
+  state = next;
+  writeSeq++;                       /* 어제 날짜로 출발한 조회의 답이 오늘 화면을 덮지 않게 */
+  applyPendingLocal(); paint(); saveSnap();
   refresh(true);
 }
 
@@ -1416,7 +1458,7 @@ async function refresh(quiet){
 
     if(!res.ok) throw new Error(res.message || '연결에 실패했습니다.');
 
-    lastFetchAt = Date.now();
+    lastFetchAt = Date.now(); fetchOk++;
 
     /* 보내둔 사이에 출근·퇴근·사진·등록이 상태를 바꿨다면
        그쪽이 더 새것이다. 여기서 되돌리지 않는다. */
@@ -1449,6 +1491,24 @@ async function refresh(quiet){
   }finally{
     if(!quiet) cover(false);
   }
+}
+
+/* 새로고침 단추 — 그려 둔 화면이 있으면 덮개 없이 뒤에서 받는다 (2026-10-26).
+   예전에는 화면이 있어도 '기록을 불러오는 중' 덮개로 2~3초 막았다 */
+let reloading = false;
+async function reloadNow(){
+  dropLogCache();
+  if(!state || !state.registered){ refresh(false); return; }
+  if(reloading) return;
+  reloading = true;
+  const b = $('btnReload'); if(b) b.disabled = true;
+  const before = fetchOk;
+  try{ await refresh(true); }
+  finally{
+    reloading = false;
+    if(b) b.disabled = false;
+  }
+  if(fetchOk !== before) toast('새로 받았습니다.', 'good');
 }
 
 /* 앱을 열 때 — 담아둔 것이 있으면 왕복을 기다리지 않고 바로 그린다 */
@@ -2233,20 +2293,54 @@ function prefetchLog(){
 
   const ym = todayKey().slice(0,7);
 
-  if(logCache[ym]){ paintLogHint(logCache[ym]); return; }
+  if(logCache[ym] && !logStale[ym]){ paintLogHint(logCache[ym]); return; }
 
   api({ action:'mylog', ym: ym })
     .then(function(res){
-      if(res && res.ok){ logCache[ym] = res; paintLogHint(res); }
+      if(res && res.ok){
+        logCache[ym] = res; delete logStale[ym]; paintLogHint(res);
+        if(logYm === ym && $('viewLog').classList.contains('on')) paintLog(res);
+      }
     })
     .catch(function(){ /* 조용히 넘어간다 */ });
 }
 
-/* 출퇴근을 새로 찍으면 이번 달 기록이 달라진다 — 담아둔 것을 버리고 다시 받는다 */
+/* 출퇴근을 새로 찍으면 이번 달 기록이 달라진다 — 다시 받되, 받는 동안은 옛 값을 그대로 보여 준다 (2026-10-26) */
+const logStale = {};
 function dropLogCache(){
   const ym = todayKey().slice(0,7);
-  delete logCache[ym];
+  if(logCache[ym]) logStale[ym] = true;
   setTimeout(prefetchLog, 600);
+}
+
+/* 지난 달 기록은 이 기기에 남겨 둔다 — 다시 열어도 바로 뜬다. 연 뒤에는 뒤에서 한 번 더 받아 맞춘다.
+   같은 사람의 것만 쓴다 (기기 등록이 바뀌면 버린다). 이번 달은 남기지 않는다(자주 바뀐다) */
+const LOG_KEY = 'uo_attendance_log_v1';
+function logStoreRead(ym){
+  try{
+    const all = JSON.parse(localStorage.getItem(LOG_KEY) || '{}');
+    if(!state || all.phone !== state.phone || !all.months) return null;
+    return all.months[ym] || null;
+  }catch(err){ return null; }
+}
+function logStoreWrite(ym, res){
+  if(!state || !state.phone || ym >= todayKey().slice(0,7)) return;
+  try{
+    let all = JSON.parse(localStorage.getItem(LOG_KEY) || '{}');
+    if(all.phone !== state.phone || !all.months) all = { phone: state.phone, months: {} };
+    all.months[ym] = res;
+    const keys = Object.keys(all.months).sort();
+    while(keys.length > 13) delete all.months[keys.shift()];   /* 1년치 남짓만 */
+    localStorage.setItem(LOG_KEY, JSON.stringify(all));
+  }catch(err){ /* 못 남겨도 앱은 그대로 */ }
+}
+/** 지난 달 하나를 조용히 받아 둔다 (앞뒤로 넘길 때 기다리지 않게) */
+function prefetchMonth(ym){
+  if(!state || !state.registered || !ym || logCache[ym] || ym > todayKey().slice(0,7)) return;
+  const stored = logStoreRead(ym); if(stored){ logCache[ym] = stored; return; }
+  api({ action:'mylog', ym: ym }).then(function(res){
+    if(res && res.ok && !logCache[ym]){ logCache[ym] = res; logStoreWrite(ym, res); }
+  }).catch(function(){});
 }
 
 function paintLogHint(data){
@@ -2259,20 +2353,24 @@ function paintLogHint(data){
 async function openLog(ym){
   logYm = ym || todayKey().slice(0,7);
   show('viewLog');
-  paintLog(logCache[logYm] || null);
+  const asked = logYm;
+  /* 받아 둔 것(이 기기에 남긴 지난 달 포함)이 있으면 바로 그리고, 그 앞 달도 미리 받아 둔다 */
+  if(!logCache[asked]){ const stored = logStoreRead(asked); if(stored){ logCache[asked] = stored; logStale[asked] = true; } }
+  const had = logCache[asked] || null;
+  paintLog(had);
+  setTimeout(function(){ prefetchMonth(ymShift(asked, -1)); }, 300);
 
-  if(!logCache[logYm]){
-    const asked = logYm;
+  if(!had || logStale[asked]){
     try{
       const res = await api({ action:'mylog', ym: asked });
       if(res.ok){
-        logCache[asked] = res;
+        logCache[asked] = res; delete logStale[asked]; logStoreWrite(asked, res);
         /* 본 화면의 요약은 '이번 달' 것일 때만 바꾼다 */
         if(asked === todayKey().slice(0,7)) paintLogHint(res);
         if(asked === logYm) paintLog(res);        /* 그사이 다른 달로 넘겼으면 그리지 않는다 */
       }
-      else if(asked === logYm) paintLogFail(res.message || '기록을 불러오지 못했습니다.');
-    }catch(err){ if(asked === logYm) paintLogFail(err.message); }
+      else if(asked === logYm && !had) paintLogFail(res.message || '기록을 불러오지 못했습니다.');
+    }catch(err){ if(asked === logYm && !had) paintLogFail(err.message); }
   }
 }
 
@@ -2369,7 +2467,7 @@ $('btnIn').addEventListener('click', () => doCheck('checkin'));
 $('btnOut').addEventListener('click', () => doCheck('checkout'));
 $('btnPhoto').addEventListener('click', () => $('filePhoto').click());
 $('filePhoto').addEventListener('change', (e) => doPhoto(e.target.files));
-$('btnReload').addEventListener('click', () => { dropLogCache(); refresh(false); });
+$('btnReload').addEventListener('click', reloadNow);
 $('btnRetryLoad').addEventListener('click', () => { paintLoading(); refresh(false); });
 $('btnTheme').addEventListener('click', nextTheme);
 
