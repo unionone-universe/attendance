@@ -446,7 +446,7 @@
     <div class="brand-row"><img class="tb-icon" src="./icon-192.png" alt="">UNION ONE 출퇴근</div>
     <div class="card">
       <h1 class="reg-title">이 휴대전화 등록</h1>
-      <p class="reg-sub">처음 한 번만 합니다. 워크보드에 쓰는 이름 · 전화번호 · PIN 을 그대로 넣어 주세요.</p>
+      <p class="reg-sub">처음 한 번만 등록합니다. 워크보드와 같은 이름 · 전화번호 · PIN 을 입력해 주세요.</p>
 
       <!-- 칸은 [라벨] + [빈 칸] 만 — 워크보드와 같은 규칙 (2026-09-09). placeholder 는 쓰지 않습니다 -->
       <label class="f" for="fName">이름</label>
@@ -457,7 +457,7 @@
 
       <label class="f" for="fPin">PIN 4자리</label>
       <input id="fPin" class="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="4">
-      <p class="f-help">워크보드에 들어갈 때 쓰는 PIN 과 같습니다.</p>
+      <p class="f-help">워크보드 PIN 과 같습니다.</p>
 
       <button class="btn" id="btnRegister">등록하기</button>
     </div>
@@ -517,14 +517,14 @@
               <path class="a-mark" d="M59 22.4l3.4 3.4 6.6-6.8"/>
               <path class="a-spark" d="M15 12v6M12 15h6M75 42v5M72.5 44.5h5"/>
             </svg>
-            <div><b>오늘 근무를 마쳤습니다</b><span>수고하셨습니다. 사진과 내 기록은 아래에서 볼 수 있습니다.</span></div>
+            <div><b>오늘 근무를 마쳤습니다</b><span>사진과 내 기록은 아래에서 확인할 수 있습니다.</span></div>
           </div>
           <button class="btn main" id="btnIn" disabled>출근하기</button>
           <button class="btn main out gone" id="btnOut" disabled>퇴근하기</button>
           <button class="btn line main" id="btnRetryLoad" hidden>다시 불러오기</button>
           <!-- ★ 방금 찍은 것 되돌리기 (2026-09-02). 5분 안에만 뜹니다. 늘 떠 있으면 '지울 수 있는 기록' 처럼 보입니다 -->
           <button class="undo" id="btnUndo" hidden>출근 취소</button>
-          <p class="hint" id="geoHint" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><path d="M4 4l16 16"/></svg><span>위치 권한이 꺼져 있습니다. 기록은 되지만 위치가 남지 않습니다 — 폰 설정에서 이 앱의 위치를 허용해 주세요.</span></p>
+          <p class="hint" id="geoHint" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><path d="M4 4l16 16"/></svg><span>위치 권한이 꺼져 있어 위치 없이 기록됩니다. 폰 설정에서 위치를 허용해 주세요.</span></p>
         </section>
       </div>
 
@@ -580,11 +580,11 @@
         </div>
         <div class="card log-sum">
           <div class="sum-tiles">
-            <div class="sum-tile"><em>나온 날</em><strong id="logDays"></strong><span>일</span></div>
-            <div class="sum-tile"><em>일한 시간</em><strong id="logHours"></strong><span>시간</span></div>
+            <div class="sum-tile"><em>출근일</em><strong id="logDays"></strong><span>일</span></div>
+            <div class="sum-tile"><em>근무 시간</em><strong id="logHours"></strong><span>시간</span></div>
           </div>
           <ul id="logSites" class="logsites"></ul>
-          <p class="sum-note">일한 시간은 출근과 퇴근이 모두 찍힌 날만 더합니다.</p>
+          <p class="sum-note">근무 시간은 출근과 퇴근이 모두 기록된 날만 합산합니다.</p>
         </div>
       </aside>
 
@@ -643,7 +643,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzTybR0LIssoSKflPmkdDhV
 /* ★ 판 번호 — 화면을 고쳐 올릴 때마다 0.01 씩 올리세요.
    본 화면 맨 아래에 그대로 나옵니다. 새 것이 올라갔는지 눈으로 확인하는 자리입니다.
    (견적 앱의 APP_VERSION 과 같은 역할입니다) */
-const APP_VERSION = '2.02';
+const APP_VERSION = '2.03';
 
 /* 기기 식별값을 담는 이름. 한 번 정하면 절대 바꾸지 말 것 — 바꾸면 모든 폰을 다시 등록해야 합니다. */
 const DEVICE_TOKEN_KEY = 'uo_attendance_launcher_device_v1';
@@ -759,7 +759,7 @@ async function doUndo(){
   const b = $('btnUndo');
   const what = b && b.dataset.what;
   if(!what) return;
-  if(!confirm(what === 'out' ? '방금 찍은 퇴근을 취소할까요?' : '방금 찍은 출근을 취소할까요?')) return;
+  if(!confirm(what === 'out' ? '방금 기록한 퇴근을 취소할까요?' : '방금 기록한 출근을 취소할까요?')) return;
 
   /* ★ 누르는 순간 화면에서 먼저 지운다 (2026-10-26) — 예전에는 서버 답을 두 번(취소 → 다시 받기) 기다렸다.
      안 되면 서버 값으로 되돌린다. 그 전에 출발한 조회의 답이 지운 시각을 되살리지 않게 writeSeq 를 올린다 */
@@ -771,7 +771,7 @@ async function doUndo(){
     paint(); saveSnap();
   }
   b.disabled = true;
-  toast(what === 'out' ? '퇴근 취소를 보내는 중입니다.' : '출근 취소를 보내는 중입니다.');
+  toast(what === 'out' ? '퇴근 취소 중입니다.' : '출근 취소 중입니다.');
   let res = null;
   try{ res = await api({ action:"undo", what: what }); }
   catch(err){ res = null; }
@@ -954,7 +954,7 @@ function paint(){
   let st = 'none', badge = '출근 전', msg = '';
   if(state.status === '퇴근완료'){ st = 'done'; badge = '퇴근 완료'; }
   else if(state.status === '근무중'){ st = 'work'; badge = '근무 중'; }
-  else if(state.leave){ st = 'leave'; badge = '오늘 ' + state.leave; msg = '휴가로 등록된 날입니다. 나와서 일하면 출근하기를 눌러 주세요.'; }
+  else if(state.leave){ st = 'leave'; badge = '오늘 ' + state.leave; msg = '휴가로 등록된 날입니다. 출근했다면 [출근하기] 를 눌러 주세요.'; }
   $('viewApp').dataset.st = st;
   $('statusBadge').textContent = badge;
   $('stateMsg').textContent = msg;
@@ -997,7 +997,7 @@ function paintSync(){
     if(x[1]){
       if(item){
         s = (item.tries || 0) > QUEUE_WAIT.length ? 'bad' : 'wait';
-        t = s === 'bad' ? '아직 못 보냄' : '보내는 중';
+        t = s === 'bad' ? '미전송' : '전송 중';
       }else if(state.__snap){ s = 'wait'; t = '확인 중'; }
       else { s = 'ok'; t = '기록됨'; }
     }
@@ -1321,11 +1321,11 @@ function paintPending(){
 
   if(막힌것.length){
     box.className = 'pending on bad';
-    $('pendingText').textContent = 이름 + ' 기록을 아직 보내지 못했습니다. 연결되면 저절로 다시 보냅니다.';
+    $('pendingText').textContent = 이름 + ' 기록을 아직 전송하지 못했습니다. 연결되면 자동으로 다시 보냅니다.';
     $('pendingRetry').hidden = false;
   }else{
     box.className = 'pending on wait';
-    $('pendingText').textContent = 이름 + ' 기록을 보내는 중입니다';
+    $('pendingText').textContent = 이름 + ' 기록 전송 중입니다';
     $('pendingRetry').hidden = true;
   }
 }
@@ -1508,7 +1508,7 @@ async function reloadNow(){
     reloading = false;
     if(b) b.disabled = false;
   }
-  if(fetchOk !== before) toast('새로 받았습니다.', 'good');
+  if(fetchOk !== before) toast('새로고침했습니다.', 'good');
 }
 
 /* 앱을 열 때 — 담아둔 것이 있으면 왕복을 기다리지 않고 바로 그린다 */
@@ -1627,7 +1627,7 @@ async function doCheckOnce(kind){
 
   /* 이미 보류함에 같은 것이 있으면 두 번 넣지 않는다 */
   if(queueHas(kind)){
-    toast(label + ' 기록을 보내는 중입니다.', 'bad');
+    toast(label + ' 기록 전송 중입니다.', 'bad');
     return;
   }
 
@@ -1690,7 +1690,7 @@ function photoNote(text){
 /* 고른 사진 목록 — 이번에 고른 것만 잠깐 보여 준다. 올라간 사진을 모아 보는 곳이 아니다 */
 let batchUrls = [];
 let batchTimer = null;
-const PB_TEXT = { wait:'대기', up:'올리는 중', ok:'올림', kept:'담아 둠', fail:'못 올림' };
+const PB_TEXT = { wait:'대기', up:'올리는 중', ok:'올림', kept:'임시 저장', fail:'실패' };
 
 function batchStart(files){
   clearTimeout(batchTimer);
@@ -1737,8 +1737,8 @@ function batchSummary(){
   });
   const 끝말 = [];
   if(수.ok) 끝말.push(수.ok + '장 올림');
-  if(수.kept) 끝말.push(수.kept + '장은 통신이 안 되어 담아 둠 — 연결되면 저절로 올라갑니다');
-  if(수.fail) 끝말.push(수.fail + '장은 올리지 못함' + (batchReason ? ' (' + batchReason + ')' : '') + ' — 다시 골라 주세요');
+  if(수.kept) 끝말.push(수.kept + '장은 연결이 끊겨 임시 저장 · 연결되면 자동으로 올라갑니다');
+  if(수.fail) 끝말.push(수.fail + '장은 올리지 못함' + (batchReason ? ' (' + batchReason + ')' : '') + ' · 다시 선택해 주세요');
   photoNote(끝말.join(' · '));
   clearTimeout(batchTimer);
   if(수.ok && !수.kept && !수.fail){
@@ -1901,7 +1901,7 @@ async function pqFlush(){
     pqBusy = false;
     await pqPaint();
     if(줄바뀜 && !photoBusy) batchSummary();        /* '담아 둠' 안내도 지금 상태로 */
-    if(보낸것) toast('담아 둔 사진 ' + 보낸것 + '장을 올렸습니다.', 'good');
+    if(보낸것) toast('임시 저장된 사진 ' + 보낸것 + '장을 올렸습니다.', 'good');
   }
 }
 
@@ -1946,8 +1946,8 @@ async function 사진담기(file, 준비, pos, at, i, res, quiet){
   });
   await pqPaint();
   if(!quiet){
-    toast(담았다 ? '통신이 안 되어 담아 두었습니다. 붙으면 저절로 올라갑니다.'
-                 : '사진을 올리지도 담지도 못했습니다. 다시 골라 주세요.', 'bad');
+    toast(담았다 ? '연결이 끊겨 임시 저장했습니다. 연결되면 자동으로 올라갑니다.'
+                 : '사진을 올리지 못했습니다. 다시 선택해 주세요.', 'bad');
   }
   return 담았다 ? 담을id : '';
 }
@@ -2037,7 +2037,7 @@ async function doPhoto(files){
     if(done && !담음 && !못함){
       toast(done > 1 ? ('사진 ' + done + '장이 등록되었습니다.') : '사진이 등록되었습니다.', 'good');
     }else if(담음 || 못함){
-      toast(담음 ? '일부 사진을 담아 두었습니다. 연결되면 저절로 올라갑니다.' : '올리지 못한 사진이 있습니다.', 'bad');
+      toast(담음 ? '일부 사진을 임시 저장했습니다. 연결되면 자동으로 올라갑니다.' : '올리지 못한 사진이 있습니다.', 'bad');
     }else{
       batchClose(); photoNote('');
     }
@@ -2403,7 +2403,7 @@ function paintLog(data){
   $('logSites').innerHTML = 현장별.slice(0, 3).map(function(x){
     return '<li title="' + esc(x.site) + '"><span class="ls-name">' + esc(siteSplit(x.site).main) + '</span><b>' + esc(x.days) + '일</b></li>';
   }).join('') + (현장별.length > 3
-    ? '<li><span class="ls-name">그 밖 ' + (현장별.length - 3) + '곳</span><b>' +
+    ? '<li><span class="ls-name">기타 ' + (현장별.length - 3) + '곳</span><b>' +
         현장별.slice(3).reduce(function(n, x){ return n + (Number(x.days) || 0); }, 0) + '일</b></li>'
     : '');
 
